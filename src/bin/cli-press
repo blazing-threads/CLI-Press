@@ -3,10 +3,12 @@
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+use ForsakenThreads\CliPress\Generate;
+use ForsakenThreads\CliPress\Themes;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
 
-$application->add(new DocGen\Generate());
-$application->add(new DocGen\Themes());
+$application->add(new Generate());
+$application->add(new Themes());
 $application->run();
