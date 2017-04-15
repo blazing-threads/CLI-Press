@@ -1,5 +1,21 @@
-<?php namespace ForsakenThreads\CliPress;
+<?php
 
+/*
+ * This file is part of CLI Press.
+ *
+ * The MIT License (MIT)
+ * Copyright © 2017
+ *
+ * Alex Carter, alex@blazeworx.com
+ * Keith E. Freeman, cli-press@forsaken-threads.com
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that should have been distributed with this source code.
+ */
+
+namespace BlazingThreads\CliPress\Commands;
+
+use BlazingThreads\CliPress\Managers\TemplateManager;
 use mikehaertl\wkhtmlto\Pdf;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -7,6 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Generate extends Command
 {
+
     protected $config;
 
     /**
@@ -14,15 +31,21 @@ class Generate extends Command
      */
     protected $parseDown;
 
+    /**
+     * @var TemplateManager
+     */
+    protected $templateManager;
+
     protected function configure()
     {
         $this
             ->setName('generate')
-            ->setDescription('Generate PDF Documentation');
+            ->setDescription('Start up the press and make something beautiful');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->templateManager = app()->make('managers.template');
         $this->parseDown = new \ParsedownExtra();
         $this->config = [
             'theme' => 'cli-press',
@@ -97,29 +120,29 @@ class Generate extends Command
         $baseCss = $this->getThemeFile('cover.css', [], true);
         $themeCss = $this->getThemeFile('cover.css');
         $now = date('Y-m-d H:i:s');
-        $cover = $this->getFirstFile('cover.phtml', compact('coverContent', 'now'));
-        return $this->getFirstFile('cover-layout.phtml', compact('baseCss', 'themeCss', 'cover', 'withFA'));
+        $cover = $this->getFirstFile('cover.twig', compact('coverContent', 'now'));
+        return $this->getFirstFile('cover-layout.twig', compact('baseCss', 'themeCss', 'cover', 'withFA'));
     }
 
     private function generateHeaderHtml($title) {
         $baseCss = $this->getThemeFile('header.css', [], true);
         $themeCss = $this->getThemeFile('header.css');
-        $header = $this->parseDown->parse($this->getFirstFile('header.phtml', compact('title')));
+        $header = $this->parseDown->parse($this->getFirstFile('header.twig', compact('title')));
         $header = $this->faParse($header, $withFA);
-        return $this->getFirstFile('header-layout.phtml', compact('baseCss', 'themeCss', 'header', 'withFA'));
+        return $this->getFirstFile('header-layout.twig', compact('baseCss', 'themeCss', 'header', 'withFA'));
     }
 
     private function generateFooterHtml() {
         $baseCss = $this->getThemeFile('footer.css', [], true);
         $themeCss = $this->getThemeFile('footer.css');
-        $footer = $this->parseDown->parse($this->getFirstFile('footer.phtml'));
+        $footer = $this->parseDown->parse($this->getFirstFile('footer.twig'));
         $footer = $this->faParse($footer, $withFA);
-        return $this->getFirstFile('footer-layout.phtml', compact('baseCss', 'themeCss', 'footer', 'withFA'));
+        return $this->getFirstFile('footer-layout.twig', compact('baseCss', 'themeCss', 'footer', 'withFA'));
     }
 
     private function generateBodyHtml($files) {
-        $base = $this->getThemeFile('body.css', [], true);
-        $theme = $this->getThemeFile('body.css');
+        $baseCss = $this->getThemeFile('body.css', [], true);
+        $themeCss = $this->getThemeFile('body.css');
         $html = '';
         foreach ($files as $file) {
             if (!empty($this->config['hasCover']) && $file == 'cover.md') {
@@ -128,7 +151,7 @@ class Generate extends Command
             $html .= $this->parseDown->parse(file_get_contents($file));
         }
         $html = $this->faParse($html, $withFA);
-        return $this->getFirstFile('body-layout.phtml', compact('base', 'theme', 'html', 'withFA'));
+        return $this->getFirstFile('body-layout.twig', compact('baseCss', 'themeCss', 'html', 'withFA'));
     }
 
     private function getFirstFile($file, $variables = [])
@@ -143,35 +166,28 @@ class Generate extends Command
             return '';
         }
         $filename = $this->getThemePath($file, !$baseTheme ? $this->config['theme'] : 'cli-press');
-        if (!file_exists($filename)) {
-            return '';
-        }
-        extract($variables);
-        ob_start();
-        require $filename;
-        $file = ob_get_contents();
-        ob_end_clean();
-        return $file;
+        return $this->templateManager->render($filename, $variables);
     }
 
     private function getThemePath($file, $theme)
     {
-        return __DIR__ . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR . $file;
+        return "$theme/$file";
     }
 
     private function getToc()
     {
         $baseToc = $this->getThemePath('toc.xsl', 'cli-press');
         $themeToc = $this->getThemePath('toc.xsl', !empty($this->config['theme']) ? $this->config['theme'] : 'cli-press');
-        return file_exists($themeToc)
-            ? $themeToc
-            : $baseToc;
+        return __DIR__ . '/../themes/' . (file_exists(__DIR__ . "/../themes/$themeToc") ? $themeToc : $baseToc);
     }
 
     private function faParse($markup, &$count)
     {
-        return preg_replace_callback('/\{f@([a-z0-9 -]+)\}/', function($matches) {
-            $matches = explode(' ', $matches[1]);
+        return preg_replace_callback('/(@|)\{f@([a-z0-9 -]+)\}/', function($matches) {
+            if ($matches[1]) {
+                return substr($matches[0], 1);
+            }
+            $matches = explode(' ', $matches[2]);
             $icon = array_shift($matches);
             $classes = '';
             foreach ($matches as $class) {

@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c75944bd6566a41091fffc52550c30cd",
-    "content-hash": "32c1fde766d4c6be34c001b6047b4ba2",
+    "content-hash": "c85237e62685bf619769ae584c634530",
     "packages": [
         {
             "name": "erusev/parsedown",
@@ -47,7 +46,7 @@
                 "markdown",
                 "parser"
             ],
-            "time": "2017-03-29 16:04:15"
+            "time": "2017-03-29T16:04:15+00:00"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -91,7 +90,92 @@
                 "parsedown",
                 "parser"
             ],
-            "time": "2015-11-01 10:19:22"
+            "time": "2015-11-01T10:19:22+00:00"
+        },
+        {
+            "name": "illuminate/container",
+            "version": "v5.4.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/illuminate/container.git",
+                "reference": "1fc0d2451e23d2ea73c10462d74add4767e2b74c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/illuminate/container/zipball/1fc0d2451e23d2ea73c10462d74add4767e2b74c",
+                "reference": "1fc0d2451e23d2ea73c10462d74add4767e2b74c",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "5.4.*",
+                "php": ">=5.6.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Illuminate\\Container\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "The Illuminate Container package.",
+            "homepage": "https://laravel.com",
+            "time": "2017-03-13T14:14:19+00:00"
+        },
+        {
+            "name": "illuminate/contracts",
+            "version": "v5.4.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/illuminate/contracts.git",
+                "reference": "ab2825726bee46a67c8cc66789852189dbef74a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/ab2825726bee46a67c8cc66789852189dbef74a9",
+                "reference": "ab2825726bee46a67c8cc66789852189dbef74a9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Illuminate\\Contracts\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "The Illuminate Contracts package.",
+            "homepage": "https://laravel.com",
+            "time": "2017-03-29T13:17:47+00:00"
         },
         {
             "name": "mikehaertl/php-shellcommand",
@@ -127,7 +211,7 @@
             "keywords": [
                 "shell"
             ],
-            "time": "2017-02-09 18:28:47"
+            "time": "2017-02-09T18:28:47+00:00"
         },
         {
             "name": "mikehaertl/php-tmpfile",
@@ -163,7 +247,7 @@
             "keywords": [
                 "files"
             ],
-            "time": "2016-07-07 05:59:42"
+            "time": "2016-07-07T05:59:42+00:00"
         },
         {
             "name": "mikehaertl/phpwkhtmltopdf",
@@ -212,7 +296,7 @@
                 "wkhtmltoimage",
                 "wkhtmltopdf"
             ],
-            "time": "2017-03-16 10:45:28"
+            "time": "2017-03-16T10:45:28+00:00"
         },
         {
             "name": "psr/log",
@@ -259,7 +343,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2016-10-10 12:19:37"
+            "time": "2016-10-10T12:19:37+00:00"
         },
         {
             "name": "symfony/console",
@@ -322,7 +406,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2017-04-04 14:33:42"
+            "time": "2017-04-04T14:33:42+00:00"
         },
         {
             "name": "symfony/debug",
@@ -379,7 +463,7 @@
             ],
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
-            "time": "2017-03-28 21:38:24"
+            "time": "2017-03-28T21:38:24+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -438,7 +522,69 @@
                 "portable",
                 "shim"
             ],
-            "time": "2016-11-14 01:06:16"
+            "time": "2016-11-14T01:06:16+00:00"
+        },
+        {
+            "name": "twig/twig",
+            "version": "v1.33.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/twigphp/Twig.git",
+                "reference": "05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a",
+                "reference": "05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.7"
+            },
+            "require-dev": {
+                "psr/container": "^1.0",
+                "symfony/debug": "~2.7",
+                "symfony/phpunit-bridge": "~3.3@dev"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.33-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Twig_": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
+                },
+                {
+                    "name": "Armin Ronacher",
+                    "email": "armin.ronacher@active-4.com",
+                    "role": "Project Founder"
+                },
+                {
+                    "name": "Twig Team",
+                    "homepage": "http://twig.sensiolabs.org/contributors",
+                    "role": "Contributors"
+                }
+            ],
+            "description": "Twig, the flexible, fast, and secure template language for PHP",
+            "homepage": "http://twig.sensiolabs.org",
+            "keywords": [
+                "templating"
+            ],
+            "time": "2017-03-22T15:40:09+00:00"
         }
     ],
     "packages-dev": [],

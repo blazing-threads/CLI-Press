@@ -1,32 +1,34 @@
 {
-    "name": "forsaken-threads/cli-press",
+    "name": "weavings-threads/cli-press",
     "description": "Building beautiful documentation from the command line.",
     "license": "MIT",
     "authors": [
         {
-            "name": "Keith E. Freeman",
-            "email": "cli-press@forsaken-threads.com",
-            "homepage": "http://forsaken-threads.com",
-            "role": "Developer"
-        },
-        {
             "name": "Alex Carter",
             "email": "alex@blazeworx.com",
             "homepage": "http://blazeworx.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Keith E. Freeman",
+            "email": "cli-press@forsaken-threads.com",
+            "homepage": "http://forsaken-threads.com",
             "role": "Developer"
         }
     ],
     "require": {
         "erusev/parsedown-extra": "^0.7.1",
         "symfony/console": "^3.2",
-        "mikehaertl/phpwkhtmltopdf": "^2.2"
+        "mikehaertl/phpwkhtmltopdf": "^2.2",
+        "twig/twig": "^1.33",
+        "illuminate/container": "^5.4"
     },
     "autoload": {
         "psr-4": {
-            "ForsakenThreads\\CliPress\\": "./src"
+            "BlazingThreads\\CliPress\\": "./src"
         }
     },
     "bin": [
-        "src/bin/cli-press"
+        "bin/cli-press"
     ]
 }
