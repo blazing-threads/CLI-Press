@@ -15,14 +15,12 @@
 
 namespace BlazingThreads\CliPress\Commands;
 
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-
-class Themes extends Command
+class Themes extends BaseCommand
 {
-    protected $config;
 
+    /**
+     * @inheritdoc
+     */
     protected function configure()
     {
         $this
@@ -30,16 +28,20 @@ class Themes extends Command
             ->setDescription('Show a list of available themes');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * @inheritdoc
+     */
+    protected function exec()
     {
-        $list = "<info>Available Themes:</info>\n";
-        foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) as $theme) {
+        $list = "Available Themes\n";
+        $list .= "<info>built-in:</info>\n";
+        foreach (glob(app()->path('themes.builtin', '*'), GLOB_ONLYDIR) as $theme) {
             $theme = basename($theme);
             if ($theme == 'cli-press') {
                 $theme = 'cli-press (base)';
             }
             $list .= "<comment>$theme</comment>\n";
         }
-        $output->write($list);
+        $this->output->write($list);
     }
 }

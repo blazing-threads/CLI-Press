@@ -15,15 +15,12 @@
 
 namespace BlazingThreads\CliPress\Commands;
 
+use BlazingThreads\CliPress\Exception;
 use BlazingThreads\CliPress\Managers\TemplateManager;
 use mikehaertl\wkhtmlto\Pdf;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class Generate extends Command
+class Generate extends BaseCommand
 {
-
     protected $config;
 
     /**
@@ -36,6 +33,14 @@ class Generate extends Command
      */
     protected $templateManager;
 
+    /**
+     * @var string
+     */
+    protected $workingPath;
+
+    /**
+     * @inheritdoc
+     */
     protected function configure()
     {
         $this
@@ -43,8 +48,12 @@ class Generate extends Command
             ->setDescription('Start up the press and make something beautiful');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * @inheritdoc
+     */
+    protected function exec()
     {
+        $this->setWorkingPath();
         $this->templateManager = app()->make('managers.template');
         $this->parseDown = new \ParsedownExtra();
         $this->config = [
@@ -69,46 +78,38 @@ class Generate extends Command
             }
         }
 
-        $output->writeln('<comment>Starting the press</comment>');
+        $this->output->writeln('<comment>Starting the press</comment>');
 
         $pdf = new Pdf();
 
         $coverPageHtml = $this->generateCoverPageHtml();
 
         if ($coverPageHtml) {
-            file_put_contents('cli-press_cover.html', $coverPageHtml);
-            $pdf->addCover('cli-press_cover.html');
+            $this->saveWorkingFile('cli-press_cover.html', $coverPageHtml);
+            $pdf->addCover($this->getWorkingFilePath('cli-press_cover.html'));
             $this->config['hasCover'] = true;
         }
 
         $pdf->setOptions([
-            'header-html' => 'cli-press_header.html',
-            'footer-html' => 'cli-press_footer.html',
+            'header-html' => $this->getWorkingFilePath('cli-press_header.html'),
+            'footer-html' => $this->getWorkingFilePath('cli-press_footer.html'),
         ]);
 
-        $headerHtml = $this->generateHeaderHtml($this->config['title']);
-
-        $bodyHtml = $this->generateBodyHtml(glob('*.md'));
-
-        $footerHtml = $this->generateFooterHtml();
-
-        file_put_contents('cli-press_header.html', $headerHtml);
-        file_put_contents('cli-press_body.html', $bodyHtml);
-        file_put_contents('cli-press_footer.html', $footerHtml);
+        $this->saveWorkingFile('cli-press_header.html', $this->generateHeaderHtml($this->config['title']));
+        $this->saveWorkingFile('cli-press_body.html', $this->generateBodyHtml(glob('*.md')));
+        $this->saveWorkingFile('cli-press_footer.html', $this->generateFooterHtml());
 
         $pdf->addToc([
             'xsl-style-sheet' => $this->getToc()
         ]);
 
-        $pdf->addPage('cli-press_body.html');
+        $pdf->addPage($this->getWorkingFilePath('cli-press_body.html'));
 
         if (!$pdf->saveAs($this->config['filename'] . '.pdf')) {
-            $output->write('<fg=red>ERROR:</fg=red> ' . $pdf->getError());
+            $this->output->write('<fg=red>ERROR:</fg=red> ' . $pdf->getError());
         } else {
-            $output->write("<info>Complete!</info>\n");
+            $this->output->write("<info>Complete!</info>\n");
         }
-
-        exec('rm cli-press_*.html');
     }
 
     private function generateCoverPageHtml() {
@@ -120,24 +121,24 @@ class Generate extends Command
         $baseCss = $this->getThemeFile('cover.css', [], true);
         $themeCss = $this->getThemeFile('cover.css');
         $now = date('Y-m-d H:i:s');
-        $cover = $this->getFirstFile('cover.twig', compact('coverContent', 'now'));
-        return $this->getFirstFile('cover-layout.twig', compact('baseCss', 'themeCss', 'cover', 'withFA'));
+        $cover = $this->getFirstFile('cover.html.twig', compact('coverContent', 'now'));
+        return $this->getFirstFile('cover-layout.html.twig', compact('baseCss', 'themeCss', 'cover', 'withFA'));
     }
 
     private function generateHeaderHtml($title) {
         $baseCss = $this->getThemeFile('header.css', [], true);
         $themeCss = $this->getThemeFile('header.css');
-        $header = $this->parseDown->parse($this->getFirstFile('header.twig', compact('title')));
+        $header = $this->parseDown->parse($this->getFirstFile('header.html.twig', compact('title')));
         $header = $this->faParse($header, $withFA);
-        return $this->getFirstFile('header-layout.twig', compact('baseCss', 'themeCss', 'header', 'withFA'));
+        return $this->getFirstFile('header-layout.html.twig', compact('baseCss', 'themeCss', 'header', 'withFA'));
     }
 
     private function generateFooterHtml() {
         $baseCss = $this->getThemeFile('footer.css', [], true);
         $themeCss = $this->getThemeFile('footer.css');
-        $footer = $this->parseDown->parse($this->getFirstFile('footer.twig'));
+        $footer = $this->parseDown->parse($this->getFirstFile('footer.html.twig'));
         $footer = $this->faParse($footer, $withFA);
-        return $this->getFirstFile('footer-layout.twig', compact('baseCss', 'themeCss', 'footer', 'withFA'));
+        return $this->getFirstFile('footer-layout.html.twig', compact('baseCss', 'themeCss', 'footer', 'withFA'));
     }
 
     private function generateBodyHtml($files) {
@@ -151,7 +152,7 @@ class Generate extends Command
             $html .= $this->parseDown->parse(file_get_contents($file));
         }
         $html = $this->faParse($html, $withFA);
-        return $this->getFirstFile('body-layout.twig', compact('baseCss', 'themeCss', 'html', 'withFA'));
+        return $this->getFirstFile('body-layout.html.twig', compact('baseCss', 'themeCss', 'html', 'withFA'));
     }
 
     private function getFirstFile($file, $variables = [])
@@ -178,7 +179,12 @@ class Generate extends Command
     {
         $baseToc = $this->getThemePath('toc.xsl', 'cli-press');
         $themeToc = $this->getThemePath('toc.xsl', !empty($this->config['theme']) ? $this->config['theme'] : 'cli-press');
-        return __DIR__ . '/../themes/' . (file_exists(__DIR__ . "/../themes/$themeToc") ? $themeToc : $baseToc);
+        return __DIR__ . '/../Themes/' . (file_exists(__DIR__ . "/../Themes/$themeToc") ? $themeToc : $baseToc);
+    }
+
+    private function getWorkingFilePath($file)
+    {
+        return $this->workingPath . DIRECTORY_SEPARATOR . $file;
     }
 
     private function faParse($markup, &$count)
@@ -197,5 +203,25 @@ class Generate extends Command
             }
             return "<i class=\"fa fa-$icon$classes\"></i>";
         }, $markup, -1, $count);
+    }
+
+    private function saveWorkingFile($file, $contents)
+    {
+        file_put_contents($this->workingPath . DIRECTORY_SEPARATOR . $file, $contents);
+    }
+
+    private function setWorkingPath()
+    {
+        $this->workingPath = sys_get_temp_dir() . '/cli-press_' . md5(app()['path.project']);
+        if (!file_exists($this->workingPath)) {
+            @mkdir($this->workingPath);
+        }
+
+        if (!is_dir($this->workingPath)) {
+            throw new Exception('Failed to create working path: ' . $this->workingPath);
+        }
+
+        // bind this to the application which will take care of removing it during shutdown
+        app()['path.working'] = $this->workingPath;
     }
 }

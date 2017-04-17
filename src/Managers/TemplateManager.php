@@ -26,9 +26,10 @@ class TemplateManager
 
     public function __construct()
     {
-        $this->loader = new Twig_Loader_Filesystem('themes', __DIR__ . '/..');
+        $this->loader = new Twig_Loader_Filesystem('Themes', app()->path('base', 'src'));
         $this->twig = new Twig_Environment($this->loader, array(
-            'cache' => false
+            'cache' => false,
+            'autoescape' => false,
         ));
     }
 

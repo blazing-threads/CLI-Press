@@ -29,6 +29,9 @@
         }
     },
     "bin": [
-        "bin/cli-press"
-    ]
+        "cli-press"
+    ],
+    "scripts": {
+        "post-install-cmd": "./cli-press configure"
+    }
 }
