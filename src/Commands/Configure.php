@@ -40,8 +40,10 @@ class Configure extends BaseCommand
         $this->showPromptInstructions();
 
         $configuration = [];
-        $configuration['personalThemes'] = $this->getDirectory('Directory for personal themes', app()->path('config', 'themes'), $this->config()->get('personal.themes'));
-        $configuration['systemThemes'] = $this->getDirectory('Directory for system themes');
-        $this->output->writeln("<comment>Saving configuration:\n" . json_encode($configuration, JSON_PRETTY_PRINT) . "</comment>");
+        $configuration['personal.themes'] = $this->getDirectory('Directory for personal themes', app()->path('config', 'themes'), $this->config()->get('personal.themes'));
+        $configuration['system.themes'] = $this->getDirectory('Directory for system themes', null, $this->config()->get('system.themes'));
+        $this->output->write("<comment>Saving configuration:\n" . json_encode($configuration, JSON_PRETTY_PRINT) . "</comment>\nResult: ");
+        $this->config()->setConfiguration($configuration);
+        $this->output->writeln($this->config()->saveConfiguration() ? '<info>saved</info>' : '<error>failed</error>');
     }
 }

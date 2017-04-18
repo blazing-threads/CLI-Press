@@ -27,7 +27,7 @@ class ConfigurationManager
     {
         $configuration = @file_get_contents($this->getConfigurationFile());
         if (empty($configuration)) {
-            $configuration = '{"initialized":false}';
+            $configuration = '{}';
         }
 
         $this->configuration = json_decode($configuration, true);
@@ -52,9 +52,20 @@ class ConfigurationManager
         return key_exists($key, $this->configuration);
     }
 
+    /**
+     * @return int
+     */
     public function saveConfiguration()
     {
         return file_put_contents($this->getConfigurationFile(), json_encode($this->configuration, JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * @param $configuration
+     */
+    public function setConfiguration($configuration)
+    {
+        $this->configuration = $configuration;
     }
 
     /**

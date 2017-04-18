@@ -77,22 +77,34 @@ abstract class BaseCommand extends Command
             $this->interrogator = $this->getHelper('question');
         }
 
-        $prompt = '<question>' . @(string) $question . '</question>';
+        $prompt = "\n<question>" . @(string) $question . "</question>\n";
 
         // add default to prompt
         if (!empty($default)) {
             $default = @(string) $default;
-            $prompt .= " <info>[default: $default]</info>\n";
+            if (empty($current)) {
+                $prompt .= 'Hit enter for ';
+            }
+            $prompt .= "<info>[default: $default]</info>\n";
         }
 
         // add current to prompt
         if (!empty($current)) {
             $current = @(string) $current;
-            $prompt .=" <comment>(current: $current)</comment>\n";
+            $prompt .="Hit enter for <comment>(current: $current)</comment>\n";
         }
 
-        $answer = $this->interrogator->ask($this->input, $this->output, new Question($prompt . "\ncli-press> ", $default));
-        return $answer === ':null:' ? null : $answer;
+        $answer = $this->interrogator->ask($this->input, $this->output, new Question($prompt . 'cli-press> ', $default));
+
+        if ($answer === ':null:') {
+            return null;
+        }
+
+        if (!empty($default) && $answer === ':default:') {
+            return $default;
+        }
+
+        return $answer;
     }
 
     protected function showPromptInstructions()
