@@ -15,7 +15,35 @@
 
 namespace BlazingThreads\CliPress\Managers;
 
+use iio\libmergepdf\Merger;
+
 class LeafManager
 {
 
+    /**
+     * PDFs to merge
+     * @var array
+     */
+    protected $files = [];
+
+    /**
+     * @param $file
+     */
+    public function addFile($file)
+    {
+        array_unshift($this->files, $file);
+    }
+
+    /**
+     * @param $filename
+     * @return int
+     */
+    public function merge($filename)
+    {
+        $merger = new Merger();
+        foreach ($this->files as $file) {
+            $merger->addFromFile($file);
+        }
+        return file_put_contents($filename, $merger->merge());
+    }
 }

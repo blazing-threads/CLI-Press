@@ -13,11 +13,27 @@
  * file that should have been distributed with this source code.
  */
 
-
 namespace BlazingThreads\CliPress;
 
-
-class Exception extends \Exception
+class PressedLeaf
 {
+    protected $content;
 
+    protected $withFA;
+
+    public function __construct($content, $withFA)
+    {
+        $this->content = $content;
+        $this->withFA = $withFA;
+    }
+
+    public function __toString()
+    {
+        return $this->content;
+    }
+
+    public function hasFA()
+    {
+        return $this->withFA;
+    }
 }

@@ -35,13 +35,24 @@ class Themes extends BaseCommand
     {
         $list = "Available Themes\n";
         $list .= "<info>built-in:</info>\n";
-        foreach (glob(app()->path('themes.builtin', '*'), GLOB_ONLYDIR) as $theme) {
+
+        foreach (glob(app()->path('themes.built-in', '*'), GLOB_ONLYDIR) as $theme) {
             $theme = basename($theme);
             if ($theme == 'cli-press') {
                 $theme = 'cli-press (base)';
             }
             $list .= "<comment>$theme</comment>\n";
         }
-        $this->output->write($list);
+
+        foreach (['personal', 'system'] as $collection) {
+            if ($dir = app()->config()->get("themes.$collection")) {
+                $list .= "\n<info>personal:</info>\n";
+                foreach (glob($dir . '/*', GLOB_ONLYDIR) as $theme) {
+                    $list .= '<comment>' . basename($theme) . '</comment>';
+                }
+            }
+        }
+
+        $this->output->writeln($list);
     }
 }

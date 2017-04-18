@@ -17,18 +17,15 @@
 namespace BlazingThreads\CliPress\Commands;
 
 
-use BlazingThreads\CliPress\Managers\ConfigurationManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 
 abstract class BaseCommand extends Command
 {
-    /** @var ConfigurationManager */
-    protected $configuration;
-
     /** @var InputInterface */
     protected $input;
 
@@ -44,6 +41,32 @@ abstract class BaseCommand extends Command
     abstract protected function exec();
 
     /**
+     * @param $question
+     * @param bool $default
+     * @return bool
+     */
+    protected function confirm($question, $default = false)
+    {
+        if (empty($this->interrogator)) {
+            $this->interrogator = $this->getHelper('question');
+        }
+
+        $question = "\n<question>$question</question> [y/n]\nHit enter for [default: " . (empty($default) ? 'n' : 'y') . "]\n";
+
+        return $this->interrogator->ask($this->input, $this->output, new ConfirmationQuestion($question . 'cli-press> ', $default));
+    }
+
+    /**
+     * @param $message
+     */
+    protected function debug($message)
+    {
+        if ($this->output->isDebug()) {
+            $this->output->writeln($message);
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -51,18 +74,6 @@ abstract class BaseCommand extends Command
         $this->input = $input;
         $this->output = $output;
         return $this->exec();
-    }
-
-    /**
-     * @return ConfigurationManager
-     */
-    protected function config()
-    {
-        if (empty($this->configuration)) {
-            $this->configuration = app()->make('managers.configuration');
-        }
-
-        return $this->configuration;
     }
 
     /**
@@ -79,13 +90,16 @@ abstract class BaseCommand extends Command
 
         $prompt = "\n<question>" . @(string) $question . "</question>\n";
 
+        if (empty($current)) {
+            $prompt .= 'Hit enter for ';
+        }
+
         // add default to prompt
         if (!empty($default)) {
             $default = @(string) $default;
-            if (empty($current)) {
-                $prompt .= 'Hit enter for ';
-            }
             $prompt .= "<info>[default: $default]</info>\n";
+        } else {
+            $prompt .= "<info>[default: @null]</info>\n";
         }
 
         // add current to prompt
@@ -94,14 +108,18 @@ abstract class BaseCommand extends Command
             $prompt .="Hit enter for <comment>(current: $current)</comment>\n";
         }
 
-        $answer = $this->interrogator->ask($this->input, $this->output, new Question($prompt . 'cli-press> ', $default));
+        $answer = $this->interrogator->ask($this->input, $this->output, new Question($prompt . 'cli-press> '));
 
-        if ($answer === ':null:') {
+        if ($answer === '@null') {
             return null;
         }
 
-        if (!empty($default) && $answer === ':default:') {
+        if ($answer === '@default') {
             return $default;
+        }
+
+        if (empty($answer)) {
+            return !empty($current) ? $current : $default;
         }
 
         return $answer;
@@ -110,6 +128,26 @@ abstract class BaseCommand extends Command
     protected function showPromptInstructions()
     {
         $this->output->writeln('For each prompt, simply hitting enter will keep the current value if it is set or will use the default value if there is one.');
-        $this->output->writeln('You may also type :null: for an empty response, or :default: to use the default value.');
+        $this->output->writeln('You may also type @null for an empty response, or @default to use the default value.');
+    }
+
+    /**
+     * @param $message
+     */
+    protected function verbose($message)
+    {
+        if ($this->output->isVerbose()) {
+            $this->output->writeln($message);
+        }
+    }
+
+    /**
+     * @param $message
+     */
+    protected function veryVerbose($message)
+    {
+        if ($this->output->isVeryVerbose()) {
+            $this->output->writeln($message);
+        }
     }
 }

@@ -33,13 +33,13 @@ class Application extends Container
      */
     public function bootstrap($projectPath, $basePath)
     {
-        // set some paths for retrieval later
+        // set some paths
         $this['path.project'] = $projectPath;
         $this['path.base'] = $basePath;
-        $this['path.themes.builtin'] = $basePath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Themes';
         $this['path.config'] = $this->getConfigurationDir();
+        $this['path.themes.built-in'] = $basePath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Themes';
 
-        // register our managers and commander
+        // register managers and commander
         $this->singleton('managers.configuration', ConfigurationManager::class);
         $this->singleton('managers.template', TemplateManager::class);
         $this->singleton('managers.leaf', LeafManager::class);
@@ -60,14 +60,20 @@ class Application extends Container
     public function cleanup()
     {
         if ($this->bound('path.working')) {
-            array_map('unlink', glob($this->path('working', '*')));
-            rmdir($this['path.working']);
+            $this->cleanDirectory($this['path.working']);
         }
     }
 
     /**
+     * @return ConfigurationManager
+     */
+    public function config()
+    {
+        return $this->resolve('managers.configuration');
+    }
+
+    /**
      * Grab the first item tagged with the given label.
-     * It's up to the developer to use a given tag only once in order for this to function as intended.
      * @param $label
      * @return mixed|null
      */
@@ -81,18 +87,31 @@ class Application extends Container
      * @param $type
      * @param string $path
      * @return string
-     * @throws Exception
+     * @throws CliPressException
      */
     public function path($type, $path = '')
     {
         $key = 'path.' . @(string) $type;
         if (!$this->bound($key)) {
-            throw new Exception('Unknown path type: ' . @(string) $type);
+            throw new CliPressException('Unknown path type: ' . @(string) $type);
         }
         return $this[$key] . DIRECTORY_SEPARATOR . @(string) $path;
     }
 
+    protected function cleanDirectory($directory)
+    {
+        foreach(glob($directory . DIRECTORY_SEPARATOR . '*') as $path) {
+            if (is_dir($path)) {
+                $this->cleanDirectory($path);
+            } else {
+                unlink($path);
+            }
+        }
+        rmdir($directory);
+    }
     /**
+     * This was lifted from source code for composer.
+     * See https://github.com/composer/composer/blob/1.4.0/src/Composer/Factory.php
      * @return string
      */
     protected function getConfigurationDir()
@@ -125,7 +144,8 @@ class Application extends Container
     }
 
     /**
-     * @return bool
+     * This was lifted from source code for composer.
+     * See https://github.com/composer/composer/blob/1.4.0/src/Composer/Factory.php     * @return bool
      */
     protected function useXdg()
     {

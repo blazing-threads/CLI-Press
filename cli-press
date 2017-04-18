@@ -35,7 +35,9 @@ $commander = $app->make('commander');
 if (empty($argv[1]) || $argv[1] == 'list' || ! ($command = $app->labeled('command.' . strtolower(@(string) $argv[1])))) {
     $commander->addCommands($app->tagged('command'));
 } else {
+    // Register the command being run with the commander and the application
     $commander->add($command);
+    $app['command.current'] = strtolower(@(string) $argv[1]);
 }
 
 $commander->run();

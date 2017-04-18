@@ -26,7 +26,15 @@ class TemplateManager
 
     public function __construct()
     {
-        $this->loader = new Twig_Loader_Filesystem('Themes', app()->path('base', 'src'));
+        $this->loader = new Twig_Loader_Filesystem();
+        // register themes in the order of priority: personal, system, built-in
+        foreach (['personal', 'system'] as $key) {
+            if ($path = app()->config()->get("themes.$key")) {
+                $this->loader->addPath($path);
+            }
+        }
+        $this->loader->addPath(app()->path('themes.built-in'));
+
         $this->twig = new Twig_Environment($this->loader, array(
             'cache' => false,
             'autoescape' => false,
@@ -36,5 +44,10 @@ class TemplateManager
     public function render($template, $variables)
     {
         return $this->twig->render($template, $variables);
+    }
+
+    public function themeHasFile($template)
+    {
+        return $this->loader->exists($template);
     }
 }

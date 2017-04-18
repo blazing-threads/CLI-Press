@@ -15,12 +15,8 @@
 
 namespace BlazingThreads\CliPress\Commands;
 
-use BlazingThreads\CliPress\Traits\InteractsWithDirectories;
-
 class Configure extends BaseCommand
 {
-    use InteractsWithDirectories;
-
     /**
      * @inheritdoc
      */
@@ -40,10 +36,27 @@ class Configure extends BaseCommand
         $this->showPromptInstructions();
 
         $configuration = [];
-        $configuration['personal.themes'] = $this->getDirectory('Directory for personal themes', app()->path('config', 'themes'), $this->config()->get('personal.themes'));
-        $configuration['system.themes'] = $this->getDirectory('Directory for system themes', null, $this->config()->get('system.themes'));
-        $this->output->write("<comment>Saving configuration:\n" . json_encode($configuration, JSON_PRETTY_PRINT) . "</comment>\nResult: ");
-        $this->config()->setConfiguration($configuration);
-        $this->output->writeln($this->config()->saveConfiguration() ? '<info>saved</info>' : '<error>failed</error>');
+        $configuration['themes.system'] = $this->prompt('Directory for system themes', null, app()->config()->get('themes.system'));
+        $configuration['themes.personal'] = $this->prompt('Directory for personal themes', app()->path('config', 'themes'), app()->config()->get('themes.personal'));
+        $this->output->writeln("<comment>Saving configuration:\n" . json_encode($configuration, JSON_PRETTY_PRINT) . "</comment>");
+
+        $confirm = $this->confirm('Continue?');
+        $this->output->write('Configuration: ');
+        if (!$confirm) {
+            $this->output->writeln('<info>aborted</info>');
+            return;
+        }
+
+        app()->config()->setConfiguration($configuration);
+
+        $this->output->writeln(app()->config()->saveConfiguration() ? '<info>saved</info>' : '<error>failed</error>');
+
+        foreach (['system', 'personal'] as $key) {
+            $directory = $configuration["themes.$key"];
+            $recursive = true;
+            if ($directory && !is_dir($directory) && !mkdir($directory, 0755, $recursive)) {
+                $this->output->writeln("<error>Failed creating directory: $directory</error>");
+            }
+        }
     }
 }

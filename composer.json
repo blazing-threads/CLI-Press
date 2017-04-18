@@ -21,7 +21,8 @@
         "symfony/console": "^3.2",
         "mikehaertl/phpwkhtmltopdf": "^2.2",
         "twig/twig": "^1.33",
-        "illuminate/container": "^5.4"
+        "illuminate/container": "^5.4",
+        "iio/libmergepdf": "~3.0"
     },
     "autoload": {
         "psr-4": {
@@ -30,8 +31,5 @@
     },
     "bin": [
         "cli-press"
-    ],
-    "scripts": {
-        "post-install-cmd": "./cli-press configure"
-    }
+    ]
 }

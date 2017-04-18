@@ -15,6 +15,8 @@
 
 namespace BlazingThreads\CliPress\Managers;
 
+use BlazingThreads\CliPress\CliPressException;
+
 class ConfigurationManager
 {
     /** @var array */
@@ -28,6 +30,9 @@ class ConfigurationManager
         $configuration = @file_get_contents($this->getConfigurationFile());
         if (empty($configuration)) {
             $configuration = '{}';
+            if (app()['command.current'] != 'configure') {
+                throw new CliPressException('No configuration found.  Please run cli-press configure.');
+            }
         }
 
         $this->configuration = json_decode($configuration, true);
@@ -54,9 +59,13 @@ class ConfigurationManager
 
     /**
      * @return int
+     * @throws CliPressException
      */
     public function saveConfiguration()
     {
+        if (!is_dir(dirname($this->getConfigurationFile())) && !mkdir(dirname($this->getConfigurationFile()), 0755, true)) {
+            throw new CliPressException('Failed to save configuration file. Could not create directory: ' . dirname($this->getConfigurationFile()));
+        }
         return file_put_contents($this->getConfigurationFile(), json_encode($this->configuration, JSON_PRETTY_PRINT));
     }
 
@@ -82,7 +91,7 @@ class ConfigurationManager
      */
     protected function getConfigurationFile()
     {
-        return app()->path('config') . '/configuration.json';
+        return app()->path('config', 'configuration.json');
     }
 
 }
