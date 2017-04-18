@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!--
+            * This file is part of CLI Press.
+            *
+            * The MIT License (MIT)
+            * Copyright © 2017
+            *
+            * Alex Carter, alex@blazeworx.com
+            * Keith E. Freeman, cli-press@forsaken-threads.com
+            *
+            * For the full copyright and license information, please view the LICENSE
+            * file that should have been distributed with this source code.
+        -->
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.js"></script>
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.css">
+        {% if withFA %}
+            <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+                  rel="stylesheet"
+                  integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+                  crossorigin="anonymous" />
+        {% endif %}
+        <style>
+            {% autoescape false %}
+                {{ baseCss }}
+
+                {{ themeCss }}
+            {% endautoescape %}
+        </style>
+    </head>
+    <body>
+        {% autoescape false %}
+            {{ html }}
+        {% endautoescape %}
+        <script type="text/javascript">
+            $(document).find("pre").not('.prettyprint').each(function(){
+                $(this).addClass("prettyprint");
+            });
+        </script>
+        <script src="http://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    </body>
+</html>

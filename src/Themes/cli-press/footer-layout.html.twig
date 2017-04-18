@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+        * This file is part of CLI Press.
+        *
+        * The MIT License (MIT)
+        * Copyright © 2017
+        *
+        * Alex Carter, alex@blazeworx.com
+        * Keith E. Freeman, cli-press@forsaken-threads.com
+        *
+        * For the full copyright and license information, please view the LICENSE
+        * file that should have been distributed with this source code.
+    -->
+    {% if withFA %}
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+              rel="stylesheet"
+              integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+              crossorigin="anonymous" />
+    {% endif %}
+    <script>
+        function setVars() {
+            var vars = {};
+            var x = document.location.search.substring(1).split('&');
+
+            for (var i in x) {
+                var z = x[i].split('=',2);
+
+                if (!vars[z[0]]) {
+                    vars[z[0]] = unescape(z[1]);
+                }
+            }
+
+            document.getElementById('paginate').innerHTML = 'page ' + vars.page + ' of ' + vars.topage;
+        }
+    </script>
+    <style>
+        {% autoescape false %}
+        {{ baseCss }}
+
+        {{ themeCss }}
+        {% endautoescape %}
+    </style>
+</head>
+
+<body onload="setVars()">
+{% autoescape false %}
+    {{ footer }}
+{% endautoescape %}
+</body>
+</html>
