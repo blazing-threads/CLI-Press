@@ -103,8 +103,28 @@ class Generate extends BaseCommand
 
     protected function addTableOfContents()
     {
+        $outlines = glob($this->getWorkingFilePath('*.xml'));
+
+        $xml = new \DOMDocument();
+        $xml->load(array_pop($outlines));
+
+        foreach ($outlines as $outline) {
+            $chapter = new \DOMDocument();
+            $chapter->load($outline);
+            foreach ($chapter->firstChild->childNodes as $node) {
+                $node = $xml->importNode($node, true);
+                $xml->firstChild->appendChild($node);
+            }
+            unset($chapter);
+        }
+
         $xsl = new \DOMDocument();
-        $xsl->load($this->getWorkingFilePath('outline.xml'));
+        $xsl->load($this->getToc());
+
+        $processor = new \XSLTProcessor();
+        $processor->importStylesheet($xsl);
+
+        $this->saveWorkingFile('cli-press_toc.html', $processor->transformToXml($xml));
 
         $pdf = new Pdf();
 
@@ -151,6 +171,22 @@ class Generate extends BaseCommand
 
         if ($this->config['book-toc']) {
             $this->addTableOfContents();
+        }
+
+        $coverPageHtml = $this->generateCoverPageHtml();
+
+        if ($coverPageHtml) {
+            $this->saveWorkingFile('cli-press_cover.html', $coverPageHtml);
+
+            $pdf = new Pdf();
+
+            $pdf->addPage($this->getWorkingFilePath('cli-press_cover.html'));
+
+            if (!$pdf->saveAs($this->getWorkingFilePath('cli-press_cover.pdf'))) {
+                throw new CliPressException("Error processing root document cover: " . $pdf->getError());
+            }
+
+            $this->leafManager->addFile($this->getWorkingFilePath('cli-press_cover.pdf'));
         }
 
         $this->output->writeln(
@@ -279,18 +315,18 @@ class Generate extends BaseCommand
             $this->setWorkingDirectory();
 
             $pdf = new Pdf([
-                'dump-outline' => $this->workingRootPath . str_replace($this->pressRootPath, '', $pressDirectory) . DIRECTORY_SEPARATOR . 'outline.xml',
+                'dump-outline' => $this->workingRootPath . DIRECTORY_SEPARATOR . microtime(true) . '-outline.xml',
             ]);
 
-            $coverPageHtml = $this->generateCoverPageHtml();
-
-            if ($coverPageHtml) {
-                $this->saveWorkingFile('cli-press_cover.html', $coverPageHtml);
-                $this->config['hasCover'] = true;
-                if (!$this->isRootDocument()) {
-                    $pdf->addCover($this->getWorkingFilePath('cli-press_cover.html'));
-                }
-            }
+//            $coverPageHtml = $this->generateCoverPageHtml();
+//
+//            if ($coverPageHtml) {
+//                $this->saveWorkingFile('cli-press_cover.html', $coverPageHtml);
+//                $this->config['hasCover'] = true;
+//                if (!$this->isRootDocument()) {
+//                    $pdf->addCover($this->getWorkingFilePath('cli-press_cover.html'));
+//                }
+//            }
 
             $pdf->setOptions([
                 'header-html' => $this->getWorkingFilePath('cli-press_header.html'),
