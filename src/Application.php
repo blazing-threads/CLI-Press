@@ -20,7 +20,9 @@ use BlazingThreads\CliPress\Commands\Generate;
 use BlazingThreads\CliPress\Commands\Themes;
 use BlazingThreads\CliPress\Managers\ConfigurationManager;
 use BlazingThreads\CliPress\Managers\LeafManager;
+use BlazingThreads\CliPress\Managers\PressManager;
 use BlazingThreads\CliPress\Managers\TemplateManager;
+use BlazingThreads\CliPress\Managers\ThemeManager;
 use Illuminate\Container\Container;
 use Symfony\Component\Console\Application as Commander;
 
@@ -38,12 +40,16 @@ class Application extends Container
         $this['path.base'] = $basePath;
         $this['path.config'] = $this->getConfigurationDir();
         $this['path.themes.built-in'] = $basePath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Themes';
+        $this['path.press-root'] = getcwd();
 
-        // register managers and commander
-        $this->singleton('managers.configuration', ConfigurationManager::class);
-        $this->singleton('managers.template', TemplateManager::class);
-        $this->singleton('managers.leaf', LeafManager::class);
-        $this->singleton('commander', Commander::class);
+        // register singletons
+        $this->singleton(PressManager::class);
+        $this->singleton(ConfigurationManager::class);
+        $this->singleton(TemplateManager::class);
+        $this->singleton(ThemeManager::class);
+        $this->singleton(LeafManager::class);
+        $this->singleton(Commander::class);
+        $this->singleton(PressInstructionStack::class);
 
         // tag all commands
         $this->tag(Configure::class, ['command', 'command.configure']);
@@ -69,7 +75,7 @@ class Application extends Container
      */
     public function config()
     {
-        return $this->resolve('managers.configuration');
+        return $this->resolve(ConfigurationManager::class);
     }
 
     /**
@@ -98,8 +104,13 @@ class Application extends Container
         return $this[$key] . DIRECTORY_SEPARATOR . @(string) $path;
     }
 
+    /**
+     * @param $directory
+     */
     protected function cleanDirectory($directory)
     {
+        $this->make(PressConsole::class)->veryVerbose("<warn>Cleaning directory: $directory</warn>");
+
         foreach(glob($directory . DIRECTORY_SEPARATOR . '*') as $path) {
             if (is_dir($path)) {
                 $this->cleanDirectory($path);
@@ -107,8 +118,10 @@ class Application extends Container
                 unlink($path);
             }
         }
+
         rmdir($directory);
     }
+
     /**
      * This was lifted from source code for composer.
      * See https://github.com/composer/composer/blob/1.4.0/src/Composer/Factory.php

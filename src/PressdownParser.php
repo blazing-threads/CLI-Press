@@ -15,7 +15,7 @@
 
 namespace BlazingThreads\CliPress;
 
-class PressdownParser
+class PressdownParser extends \ParsedownExtra
 {
 
     /**
@@ -32,6 +32,7 @@ class PressdownParser
 
     public function __construct()
     {
+        parent::__construct();
         $this->directives['fontAwesome'] = '/(@|)\{f@([a-z0-9 -]+)\}/';
         $this->directives['pageBreak'] = '/(@|)\{break}/';
     }
@@ -72,6 +73,7 @@ class PressdownParser
      */
     public function parse($markup)
     {
+        $markup = parent::parse($markup);
         $markup = $this->processDirectives($markup);
         $leaf = new PressedLeaf($markup, $this->hasFA);
         $this->hasFA = false;

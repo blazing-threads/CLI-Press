@@ -15,23 +15,36 @@
 
 namespace BlazingThreads\CliPress\Managers;
 
-use iio\libmergepdf\Merger;
+use BlazingThreads\PdfCurator\Curator;
 
 class LeafManager
 {
-
     /**
-     * PDFs to merge
-     * @var array
+     * @var Curator
      */
-    protected $files = [];
+    protected $curator;
+
+    public function __construct()
+    {
+        $this->curator = new Curator();
+    }
 
     /**
      * @param $file
+     * @param bool $prepend
      */
-    public function addFile($file)
+    public function addFile($file, $prepend = false)
     {
-        array_unshift($this->files, $file);
+        $this->curator->addFile($file, $prepend);
+    }
+
+    /**
+     * @param $file
+     * @return int
+     */
+    public function getPageCount($file)
+    {
+        return $this->curator->getPageCount($file);
     }
 
     /**
@@ -40,10 +53,14 @@ class LeafManager
      */
     public function merge($filename)
     {
-        $merger = new Merger();
-        foreach ($this->files as $file) {
-            $merger->addFromFile($file);
-        }
-        return file_put_contents($filename, $merger->merge());
+        return file_put_contents($filename, $this->curator->merge());
+    }
+
+    /**
+     * @param $file
+     */
+    public function prependFile($file)
+    {
+       $this->curator->prependFile($file);
     }
 }

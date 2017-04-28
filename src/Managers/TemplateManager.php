@@ -16,12 +16,21 @@
 namespace BlazingThreads\CliPress\Managers;
 
 use Twig_Environment;
+use Twig_Loader_Array;
 use Twig_Loader_Filesystem;
 
 class TemplateManager
 {
+    /** @var Twig_Loader_Filesystem */
     protected $loader;
 
+    /** @var Twig_Loader_Array */
+    protected $stringLoader;
+
+    /** @var Twig_Environment */
+    protected $stringTwig;
+
+    /** @var Twig_Environment */
     protected $twig;
 
     public function __construct()
@@ -35,15 +44,28 @@ class TemplateManager
         }
         $this->loader->addPath(app()->path('themes.built-in'));
 
-        $this->twig = new Twig_Environment($this->loader, array(
+        $this->twig = new Twig_Environment($this->loader, [
             'cache' => false,
             'autoescape' => false,
-        ));
+        ]);
+
+        $this->stringLoader = new Twig_Loader_Array(['string' => '']);
+
+        $this->stringTwig = new Twig_Environment($this->stringLoader, [
+            'cache' => false,
+            'autoescape' => false,
+        ]);
     }
 
-    public function render($template, $variables)
+    public function render($template, $variables = [])
     {
         return $this->twig->render($template, $variables);
+    }
+
+    public function renderString($string, $variables = [])
+    {
+        $this->stringLoader->setTemplate('string', $string);
+        return $this->stringTwig->render('string', $variables);
     }
 
     public function themeHasFile($template)

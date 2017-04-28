@@ -32,30 +32,30 @@ class Configure extends BaseCommand
      */
     protected function exec()
     {
-        $this->output->writeln('<comment>Configuring CLI Press</comment>');
+        $this->console->writeln('<comment>Configuring CLI Press</comment>');
         $this->showPromptInstructions();
 
         $configuration = [];
         $configuration['themes.system'] = $this->prompt('Directory for system themes', null, app()->config()->get('themes.system'));
         $configuration['themes.personal'] = $this->prompt('Directory for personal themes', app()->path('config', 'themes'), app()->config()->get('themes.personal'));
-        $this->output->writeln("<comment>Saving configuration:\n" . json_encode($configuration, JSON_PRETTY_PRINT) . "</comment>");
+        $this->console->writeln("<comment>Saving configuration:\n" . json_encode($configuration, JSON_PRETTY_PRINT) . "</comment>");
 
         $confirm = $this->confirm('Continue?');
-        $this->output->write('Configuration: ');
+        $this->console->write('Configuration: ');
         if (!$confirm) {
-            $this->output->writeln('<info>aborted</info>');
+            $this->console->writeln('<info>aborted</info>');
             return;
         }
 
         app()->config()->setConfiguration($configuration);
 
-        $this->output->writeln(app()->config()->saveConfiguration() ? '<info>saved</info>' : '<error>failed</error>');
+        $this->console->writeln(app()->config()->saveConfiguration() ? '<info>saved</info>' : '<error>failed</error>');
 
         foreach (['system', 'personal'] as $key) {
             $directory = $configuration["themes.$key"];
             $recursive = true;
             if ($directory && !is_dir($directory) && !mkdir($directory, 0755, $recursive)) {
-                $this->output->writeln("<error>Failed creating directory: $directory</error>");
+                $this->console->writeln("<error>Failed creating directory: $directory</error>");
             }
         }
     }

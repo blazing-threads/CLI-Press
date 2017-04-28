@@ -14,22 +14,14 @@
  * file that should have been distributed with this source code.
  */
 
-use BlazingThreads\CliPress\Application;
-
 require __DIR__ . '/vendor/autoload.php';
 
-/**
- * @return Application
- */
-function app()
-{
-    return Application::getInstance();
-}
+use Symfony\Component\Console\Application as Commander;
 
 $app = app();
 $app->bootstrap(getcwd(), __DIR__);
 
-$commander = $app->make('commander');
+$commander = $app->make(Commander::class);
 
 // there's no point in adding all commands unless we actually have to, i.e. list command was given
 if (empty($argv[1]) || $argv[1] == 'list' || ! ($command = $app->labeled('command.' . strtolower(@(string) $argv[1])))) {

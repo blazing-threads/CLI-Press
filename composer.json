@@ -1,5 +1,5 @@
 {
-    "name": "weavings-threads/cli-press",
+    "name": "blazing-threads/cli-press",
     "description": "Building beautiful documentation from the command line.",
     "license": "MIT",
     "authors": [
@@ -22,9 +22,12 @@
         "mikehaertl/phpwkhtmltopdf": "^2.2",
         "twig/twig": "^1.33",
         "illuminate/container": "^5.4",
-        "iio/libmergepdf": "~3.0"
+        "blazing-threads/pdf-curator": "dev-master"
     },
     "autoload": {
+        "files": [
+            "./src/helpers.php"
+        ],
         "psr-4": {
             "BlazingThreads\\CliPress\\": "./src"
         }

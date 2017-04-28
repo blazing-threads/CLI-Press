@@ -17,6 +17,7 @@
 namespace BlazingThreads\CliPress\Commands;
 
 
+use BlazingThreads\CliPress\PressConsole;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,6 +27,9 @@ use Symfony\Component\Console\Question\Question;
 
 abstract class BaseCommand extends Command
 {
+    /** @var PressConsole */
+    protected $console;
+
     /** @var InputInterface */
     protected $input;
 
@@ -57,22 +61,19 @@ abstract class BaseCommand extends Command
     }
 
     /**
-     * @param $message
-     */
-    protected function debug($message)
-    {
-        if ($this->output->isDebug()) {
-            $this->output->writeln($message);
-        }
-    }
-
-    /**
      * @inheritdoc
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
         $this->output = $output;
+
+        app()->singleton(PressConsole::class, function() {
+            return new PressConsole($this->output);
+        });
+
+        $this->console = app()->make(PressConsole::class);
+
         return $this->exec();
     }
 
@@ -127,27 +128,7 @@ abstract class BaseCommand extends Command
 
     protected function showPromptInstructions()
     {
-        $this->output->writeln('For each prompt, simply hitting enter will keep the current value if it is set or will use the default value if there is one.');
-        $this->output->writeln('You may also type @null for an empty response, or @default to use the default value.');
-    }
-
-    /**
-     * @param $message
-     */
-    protected function verbose($message)
-    {
-        if ($this->output->isVerbose()) {
-            $this->output->writeln($message);
-        }
-    }
-
-    /**
-     * @param $message
-     */
-    protected function veryVerbose($message)
-    {
-        if ($this->output->isVeryVerbose()) {
-            $this->output->writeln($message);
-        }
+        $this->console->writeln('For each prompt, simply hitting enter will keep the current value if it is set or will use the default value if there is one.');
+        $this->console->writeln('You may also type @null for an empty response, or @default to use the default value.');
     }
 }

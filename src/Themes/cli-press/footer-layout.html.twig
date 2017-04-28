@@ -13,40 +13,23 @@
         * For the full copyright and license information, please view the LICENSE
         * file that should have been distributed with this source code.
     -->
-    {% if withFA %}
+    {% if __withFA %}
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
               rel="stylesheet"
               integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
               crossorigin="anonymous" />
     {% endif %}
     <script>
-        function setVars() {
-            var vars = {};
-            var x = document.location.search.substring(1).split('&');
-
-            for (var i in x) {
-                var z = x[i].split('=',2);
-
-                if (!vars[z[0]]) {
-                    vars[z[0]] = unescape(z[1]);
-                }
-            }
-
-            document.getElementById('paginate').innerHTML = 'page ' + vars.page + ' of ' + vars.topage;
-        }
+        {{ __commonJs }}
     </script>
     <style>
-        {% autoescape false %}
-        {{ baseCss }}
+        {{ __baseCss }}
 
-        {{ themeCss }}
-        {% endautoescape %}
+        {{ __themeCss }}
     </style>
 </head>
 
-<body onload="setVars()">
-{% autoescape false %}
-    {{ footer }}
-{% endautoescape %}
+<body onload="document.getElementById('paginate').innerText = pdfVars.page; document.getElementById('footer').className += pdfVars.page % 2 ? ' odd' : ' even'">
+    {{ __content }}
 </body>
 </html>

@@ -4,9 +4,53 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1cde9699839c5656af983b77bf386e84",
-    "content-hash": "472a84554c946c3f3f7c09d28d16afe0",
+    "hash": "fd664b94113ddc8c00034c337eeda0b4",
+    "content-hash": "097caea5139f78977ecb2df29fb63ae8",
     "packages": [
+        {
+            "name": "blazing-threads/pdf-curator",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/blazing-threads/pdf-curator.git",
+                "reference": "d611f6ecf24bcb082a4e367a4f69cddc54e9dd9d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/blazing-threads/pdf-curator/zipball/d611f6ecf24bcb082a4e367a4f69cddc54e9dd9d",
+                "reference": "d611f6ecf24bcb082a4e367a4f69cddc54e9dd9d",
+                "shasum": ""
+            },
+            "require": {
+                "setasign/fpdi-fpdf": "^1.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BlazingThreads\\PdfCurator\\": "./src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alex Carter",
+                    "email": "alex@blazeworx.com",
+                    "homepage": "http://blazeworx.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Keith E. Freeman",
+                    "email": "pdf-curator@forsaken-threads.com",
+                    "homepage": "http://forsaken-threads.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PDF merger that resolves and maintains internal page links, including cross-file internal links.",
+            "time": "2017-04-24 19:06:34"
+        },
         {
             "name": "erusev/parsedown",
             "version": "1.6.2",
@@ -94,67 +138,17 @@
             "time": "2015-11-01 10:19:22"
         },
         {
-            "name": "iio/libmergepdf",
-            "version": "3.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/hanneskod/libmergepdf.git",
-                "reference": "b6042db24d66a49f3ecd261395ec918f00763e9c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/hanneskod/libmergepdf/zipball/b6042db24d66a49f3ecd261395ec918f00763e9c",
-                "reference": "b6042db24d66a49f3ecd261395ec918f00763e9c",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0",
-                "setasign/fpdi-fpdf": "^1.6"
-            },
-            "require-dev": {
-                "hanneskod/readme-tester": "dev-master",
-                "symfony/finder": "2.*"
-            },
-            "suggest": {
-                "symfony/finder": "Bulk add files using finder."
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "iio\\libmergepdf\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "WTFPL"
-            ],
-            "authors": [
-                {
-                    "name": "Hannes Forsgård",
-                    "email": "hannes.forsgard@gmail.com"
-                }
-            ],
-            "description": "Library for merging multiple PDFs",
-            "homepage": "https://github.com/hanneskod/libmergepdf",
-            "keywords": [
-                "concatenate",
-                "merge",
-                "pdf"
-            ],
-            "time": "2016-03-02 20:38:15"
-        },
-        {
             "name": "illuminate/container",
-            "version": "v5.4.17",
+            "version": "v5.4.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/container.git",
-                "reference": "1fc0d2451e23d2ea73c10462d74add4767e2b74c"
+                "reference": "50aa19491d478edd907d1f67e0928944e8b2dcb5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/container/zipball/1fc0d2451e23d2ea73c10462d74add4767e2b74c",
-                "reference": "1fc0d2451e23d2ea73c10462d74add4767e2b74c",
+                "url": "https://api.github.com/repos/illuminate/container/zipball/50aa19491d478edd907d1f67e0928944e8b2dcb5",
+                "reference": "50aa19491d478edd907d1f67e0928944e8b2dcb5",
                 "shasum": ""
             },
             "require": {
@@ -184,11 +178,11 @@
             ],
             "description": "The Illuminate Container package.",
             "homepage": "https://laravel.com",
-            "time": "2017-03-13 14:14:19"
+            "time": "2017-04-16 13:32:45"
         },
         {
             "name": "illuminate/contracts",
-            "version": "v5.4.17",
+            "version": "v5.4.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -709,16 +703,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.33.0",
+            "version": "v1.33.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a"
+                "reference": "dd6ca96227917e1e85b41c7c3cc6507b411e0927"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a",
-                "reference": "05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/dd6ca96227917e1e85b41c7c3cc6507b411e0927",
+                "reference": "dd6ca96227917e1e85b41c7c3cc6507b411e0927",
                 "shasum": ""
             },
             "require": {
@@ -767,13 +761,15 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-03-22 15:40:09"
+            "time": "2017-04-20 17:39:48"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "blazing-threads/pdf-curator": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

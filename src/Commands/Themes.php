@@ -53,6 +53,6 @@ class Themes extends BaseCommand
             }
         }
 
-        $this->output->writeln($list);
+        $this->console->writeln($list);
     }
 }

@@ -13,23 +13,22 @@
             * For the full copyright and license information, please view the LICENSE
             * file that should have been distributed with this source code.
         -->
-        {% if withFA %}
+        {% if __withFA %}
             <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
                   rel="stylesheet"
                   integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
                   crossorigin="anonymous" />
         {% endif %}
+        <script>
+            {{ __commonJs }}
+        </script>
         <style>
-            {% autoescape false %}
-            {{ baseCss }}
+            {{ __baseCss }}
 
-            {{ themeCss }}
-            {% endautoescape %}
+            {{ __themeCss }}
         </style>
     </head>
-    <body>
-    {% autoescape false %}
-        {{ header }}
-    {% endautoescape %}
+    <body onload="document.getElementById('header').className += pdfVars.page % 2 ? ' odd' : ' even'">
+        {{ __content }}
     </body>
 </html>

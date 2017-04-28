@@ -17,24 +17,23 @@
         <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.js"></script>
         <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.css">
-        {% if withFA %}
+        {% if __withFA %}
             <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
                   rel="stylesheet"
                   integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
                   crossorigin="anonymous" />
         {% endif %}
+        <script>
+            {{ __commonJs }}
+        </script>
         <style>
-            {% autoescape false %}
-                {{ baseCss }}
+            {{ __baseCss }}
 
-                {{ themeCss }}
-            {% endautoescape %}
+            {{ __themeCss }}
         </style>
     </head>
     <body>
-        {% autoescape false %}
-            {{ html }}
-        {% endautoescape %}
+        {{ __html }}
         <script type="text/javascript">
             $(document).find("pre").not('.prettyprint').each(function(){
                 $(this).addClass("prettyprint");
