@@ -1,0 +1,45 @@
+/*
+ * This file is part of CLI Press.
+ *
+ * The MIT License (MIT)
+ * Copyright © 2017
+ *
+ * Alex Carter, alex@blazeworx.com
+ * Keith E. Freeman, cli-press@forsaken-threads.com
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that should have been distributed with this source code.
+ */
+
+body {
+    margin: 0;
+    padding-bottom: 20px;
+}
+
+.footer {
+    border-bottom: {{ borderColorFooter ?? borderColorAll }} solid 1px;
+    padding-bottom: 5px;
+    position: relative;
+}
+
+.footer .page-wrapper {
+    color: #999;
+    font-family: {{ fontFamilyFooter }};
+    font-size: 11px;
+    font-weight: 300;
+    text-align: center;
+}
+
+{% if footerEvenOdd %}
+    .footer.even .page-wrapper {
+        text-align: left;
+    }
+
+    .footer.odd .page-wrapper {
+        text-align: right;
+    }
+{% endif %}
+
+.footer .page-wrapper .page {
+    display: inline-block;
+}
