@@ -29,10 +29,15 @@ class PressManager
     protected $console;
 
     /**
-     * We start at one because of the cover page
      * @var int
      */
     protected $currentPageOffset = 0;
+
+    /**
+     * List of to-be-PDF'ed documents
+     * @var array
+     */
+    protected $documentList = [];
 
     /**
      * List of path patterns to ignore
@@ -126,6 +131,8 @@ class PressManager
 
         $this->generateRecursively($this->pressRootPath);
 
+        $this->setWorkingDirectory($this->workingRootPath);
+
         if (!chdir($this->pressRootPath)) {
             throw new CliPressException('Failed to change press directory to: ' . $this->pressRootPath);
         }
@@ -139,9 +146,6 @@ class PressManager
                 'footer-html' => $this->getWorkingFilePath('cli-press_cover-footer.html'),
                 'header-html' => $this->getWorkingFilePath('cli-press_cover-header.html'),
             ]);
-
-            $this->saveWorkingFile('cli-press_cover-footer.html', $this->generateHtml($this->getCoverType() . '-cover-footer'));
-            $this->saveWorkingFile('cli-press_cover-header.html', $this->generateHtml($this->getCoverType() . '-cover-header'));
 
             $pdf->addPage($this->getWorkingFilePath('cli-press_cover.html'));
 
@@ -275,75 +279,31 @@ class PressManager
 
             $this->setWorkingDirectory();
 
-            // add blank pages as necessary
-            if (!$this->isRootDocument() && $this->instructions->chapterStartsAfterEmptyPage) {
-                $offset = $this->currentPageOffset % 2 == 1 ? 1 : 2;
-                $this->currentPageOffset += $offset;
-                for ($blank = 0; $blank < $offset; $blank++) {
-                    $this->addBlankPage();
-                }
-            } elseif ($this->instructions->chapterStartsRight && $this->currentPageOffset % 2 == 1) {
-                $this->currentPageOffset++;
-                $this->addBlankPage();
-            }
+            $this->documentList[] = ['chapter-starting', $this->instructions->chapterStartsRight, $this->instructions->chapterStartsAfterEmptyPage];
 
             $coverPageHtml = $this->generateCoverPageHtml();
 
             if ($coverPageHtml) {
                 $this->saveWorkingFile('cli-press_cover.html', $coverPageHtml);
+                $this->saveWorkingFile('cli-press_cover-footer.html', $this->generateHtml($this->getCoverType() . '-cover-footer'));
+                $this->saveWorkingFile('cli-press_cover-header.html', $this->generateHtml($this->getCoverType() . '-cover-header'));
+
                 $this->instructions->hasCover = true;
 
                 if ($this->isRootDocument()) {
                     $this->instructions->hasRootCover = true;
-                    $this->currentPageOffset += $this->instructions->chapterStartsRight ? 2 : 1;
                 } else {
-                    $pdf = new Pdf([
-                        'page-offset' => $this->currentPageOffset,
-                        'footer-html' => $this->getWorkingFilePath('cli-press_cover-footer.html'),
-                        'header-html' => $this->getWorkingFilePath('cli-press_cover-header.html'),
-                    ]);
-
-                    $this->saveWorkingFile('cli-press_cover-footer.html', $this->generateHtml($this->getCoverType() . '-cover-footer'));
-                    $this->saveWorkingFile('cli-press_cover-header.html', $this->generateHtml($this->getCoverType() . '-cover-header'));
-
-                    $pdf->addPage($this->getWorkingFilePath('cli-press_cover.html'));
-
-                    if (!$pdf->saveAs($this->getWorkingFilePath('cli-press_cover.pdf'))) {
-                        throw new CliPressException("Error processing cover file: " . $pdf->getError());
-                    }
-
-                    $this->addFile($this->getWorkingFilePath('cli-press_cover.pdf'));
-
-                    $this->currentPageOffset += $this->leafManager->getPageCount($this->getWorkingFilePath('cli-press_cover.pdf'));
+                    $this->documentList[] = ['cover', $this->workingDirectory, $this->getCoverType()];
                 }
             }
 
-            $pdf = new Pdf([
-                'dump-outline' => $this->workingRootPath . DIRECTORY_SEPARATOR . sprintf('%06d', $this->currentPageOffset) . '_outline.xml',
-                'page-offset' => $this->currentPageOffset,
-                'header-html' => $this->getWorkingFilePath('cli-press_header.html'),
-                'footer-html' => $this->getWorkingFilePath('cli-press_footer.html'),
-            ]);
+            $this->documentList[] = ['body', $this->workingDirectory, $this->instructions->filename, $pressDirectory];
 
             $this->saveWorkingFile('cli-press_header.html', $this->generateHtml('header'));
             $this->saveWorkingFile('cli-press_body.html', $this->generateBodyHtml($pressFiles));
             $this->saveWorkingFile('cli-press_footer.html', $this->generateHtml('footer'));
 
-            $pdf->addPage($this->getWorkingFilePath('cli-press_body.html'));
-
-            if (!$pdf->saveAs($this->getWorkingFilePath($this->instructions->filename . '.pdf'))) {
-                throw new CliPressException("Error processing leaf $pressDirectory: " . $pdf->getError());
-            }
-
-            $this->addFile($this->getWorkingFilePath($this->instructions->filename . '.pdf'));
-
-            $this->setPageOffset($this->getWorkingFilePath($this->instructions->filename . '.pdf'));
-
-            $this->console->debug('added file: ' . $this->getWorkingFilePath($this->instructions->filename . '.pdf'));
-
-            $this->console->verbose("<info>processed leaf $pressDirectory</info>");
-
-            $this->currentPageOffset++;
+            $this->console->verbose("<info>prepared leaf $pressDirectory</info>");
         }
 
         $chapters = glob($pressDirectory . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR);
@@ -370,6 +330,10 @@ class PressManager
         }
 
         $this->console->debug('finished in ' . $pressDirectory);
+
+        if ($this->isRootDocument()) {
+            $this->processDocumentList();
+        }
     }
 
     /**
@@ -496,6 +460,78 @@ class PressManager
     }
 
     /**
+     *
+     */
+    protected function processDocumentList()
+    {
+        foreach ($this->documentList as $documentInfo) {
+
+            switch ($documentInfo[0]) {
+                case 'chapter-starting':
+                    // if starts after empty page, ensure it will
+                    if ($documentInfo[2]) {
+                        $offset = $this->currentPageOffset % 2 == 1 ? 1 : 2;
+                        $this->currentPageOffset += $offset;
+                        for ($blank = 0; $blank < $offset; $blank++) {
+                            $this->addBlankPage();
+                        }
+                    }
+                    // if starts on the right side, ensure it will
+                    if ($documentInfo[1] && $this->currentPageOffset % 2 == 1) {
+                        $this->currentPageOffset++;
+                        $this->addBlankPage();
+                    }
+                    break;
+
+                case 'cover':
+                    $this->setWorkingDirectory($documentInfo[1]);
+
+                    $pdf = new Pdf([
+                        'page-offset' => $this->currentPageOffset,
+                        'footer-html' => $this->getWorkingFilePath('cli-press_cover-footer.html'),
+                        'header-html' => $this->getWorkingFilePath('cli-press_cover-header.html'),
+                    ]);
+
+                    $pdf->addPage($this->getWorkingFilePath('cli-press_cover.html'));
+
+                    if (!$pdf->saveAs($this->getWorkingFilePath('cli-press_cover.pdf'))) {
+                        throw new CliPressException("Error processing cover file: " . $pdf->getError());
+                    }
+
+                    $this->addFile($this->getWorkingFilePath('cli-press_cover.pdf'));
+
+                    $this->currentPageOffset += $this->leafManager->getPageCount($this->getWorkingFilePath('cli-press_cover.pdf'));
+                    break;
+
+                case 'body':
+                    $this->setWorkingDirectory($documentInfo[1]);
+
+                    $pdf = new Pdf([
+                        'dump-outline' => $this->workingRootPath . DIRECTORY_SEPARATOR . sprintf('%06d', $this->currentPageOffset) . '_outline.xml',
+                        'page-offset' => $this->currentPageOffset,
+                        'header-html' => $this->getWorkingFilePath('cli-press_header.html'),
+                        'footer-html' => $this->getWorkingFilePath('cli-press_footer.html'),
+                    ]);
+
+                    $pdf->addPage($this->getWorkingFilePath('cli-press_body.html'));
+
+                    if (!$pdf->saveAs($this->getWorkingFilePath($documentInfo[2] . '.pdf'))) {
+                        throw new CliPressException("Error processing leaf $documentInfo[3]: " . $pdf->getError());
+                    }
+
+                    $this->addFile($this->getWorkingFilePath($documentInfo[2] . '.pdf'));
+
+                    $this->setPageOffset($this->getWorkingFilePath($documentInfo[2] . '.pdf'));
+
+                    $this->console->debug('added file: ' . $this->getWorkingFilePath($documentInfo[2] . '.pdf'));
+
+                    $this->console->verbose('<info>processed leaf ' . $this->pressRootPath . str_replace($this->workingRootPath, '', $documentInfo[1]) . '</info>');
+                    break;
+            }
+        }
+    }
+
+    /**
      * Sets the configuration for the current press directory.
      * If there is already an active configuration, it gets pushed onto the stack.
      */
@@ -511,7 +547,13 @@ class PressManager
 
         if ($this->isRootDocument()) {
             if ($this->instructions->simpleRootCover || file_exists('cover.md')) {
+                // add one for the cover
                 $this->currentPageOffset++;
+
+                if ($this->instructions->bookToc) {
+                    // add one for the ToC, two if we need to start on the right side
+                    $this->currentPageOffset +=  !$this->instructions->chapterStartsRight ? 1 : 2;
+                }
             }
         }
 
@@ -530,7 +572,7 @@ class PressManager
 
     protected function setPageOffset($file)
     {
-        $this->currentPageOffset += $this->leafManager->getPageCount($file) - 1;
+        $this->currentPageOffset += $this->leafManager->getPageCount($file);
     }
 
     /**
@@ -544,10 +586,15 @@ class PressManager
     }
 
     /**
+     * @param null $forceDirectory
      * @throws CliPressException
      */
-    protected function setWorkingDirectory()
+    protected function setWorkingDirectory($forceDirectory = null)
     {
+        if ($forceDirectory && file_exists($forceDirectory)) {
+            $this->workingDirectory = $forceDirectory;
+            return;
+        }
         $this->workingDirectory = $this->workingRootPath . str_replace($this->pressRootPath, '', $this->pressDirectory);
         if (!is_dir($this->workingDirectory) && !mkdir($this->workingDirectory, 0755, true)) {
             throw new CliPressException('Failed to create working directory: ' . $this->workingDirectory);

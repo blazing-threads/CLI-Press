@@ -101,7 +101,7 @@ class Application extends Container
         if (!$this->bound($key)) {
             throw new CliPressException('Unknown path type: ' . @(string) $type);
         }
-        return $this[$key] . DIRECTORY_SEPARATOR . @(string) $path;
+        return $this[$key] . (empty($path) ? '' : DIRECTORY_SEPARATOR . @(string) $path);
     }
 
     /**
