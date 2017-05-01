@@ -69,6 +69,33 @@ pre > code {
     font-size: 1em;
 }
 
+figcaption {
+    background-color: #2e2c2b;
+    border-radius: 0 0 5px 5px;
+    color: #DEDEDE;
+    font-size: 11px;
+    margin: 0 60px;
+    padding: 10px 20px;
+    position: relative;
+    top: -20px;
+}
+
+figure {
+    background: #AEAEAE;
+    border-radius: 5px 5px 0 0;
+    margin: 20px 60px;
+    padding: 20px;
+}
+
+figure.caption-less {
+    border-radius: 5px;
+}
+
+figure pre.prettyprint,
+figure pre.prettyprintplain {
+    margin: 10px 0;
+}
+
 h1 {
     font-size: 2.2em;
     font-weight: 700;
@@ -146,9 +173,11 @@ p {
     word-wrap: break-word
 }
 
-pre.prettyprint {
+pre.prettyprint,
+pre.prettyprintplain {
     background-color: #2E2C2B;
-    padding: 10px ! important;
+    border-color: #888;
+    padding: 11px ! important;
     color: #DEDEDE;
     margin-bottom: 30px;
     font-size: 10px;

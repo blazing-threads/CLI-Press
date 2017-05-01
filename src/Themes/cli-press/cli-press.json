@@ -15,9 +15,10 @@
     "constants": [],
     "cover-type": "default",
     "extensions": [
+        "html",
         "md",
         "pd",
-        "html"
+        "twig"
     ],
     "filename": false,
     "font-family-block-quote-code": "Consolas, \"Liberation Mono\", Menlo, Courier, monospace",

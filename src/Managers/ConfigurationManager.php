@@ -16,6 +16,7 @@
 namespace BlazingThreads\CliPress\Managers;
 
 use BlazingThreads\CliPress\CliPressException;
+use BlazingThreads\CliPress\PressConsole;
 
 class ConfigurationManager
 {

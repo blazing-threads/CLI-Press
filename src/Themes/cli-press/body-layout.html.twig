@@ -36,7 +36,7 @@
         {{ __html }}
         <script type="text/javascript">
             $(document).find("pre").not('.prettyprint').each(function(){
-                $(this).addClass("prettyprint");
+                $(this).addClass($(this).find("code.language-none").length == 0 ? "prettyprint" : "prettyprintplain");
             });
         </script>
         <script src="http://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>

@@ -32,7 +32,7 @@ class PressManager
      * We start at one because of the cover page
      * @var int
      */
-    protected $currentPageOffset = 1;
+    protected $currentPageOffset = 0;
 
     /**
      * List of path patterns to ignore
@@ -506,6 +506,12 @@ class PressManager
             $json = json_decode(file_get_contents('cli-press.json'), true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $this->instructions->stack($json, $this->pressDirectory);
+            }
+        }
+
+        if ($this->isRootDocument()) {
+            if ($this->instructions->simpleRootCover || file_exists('cover.md')) {
+                $this->currentPageOffset++;
             }
         }
 

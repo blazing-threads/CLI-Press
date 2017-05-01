@@ -21,16 +21,24 @@ use Twig_Loader_Filesystem;
 
 class TemplateManager
 {
-    /** @var Twig_Loader_Filesystem */
+    /**
+     * @var Twig_Loader_Filesystem
+     */
     protected $loader;
 
-    /** @var Twig_Loader_Array */
+    /**
+     * @var Twig_Loader_Array
+     */
     protected $stringLoader;
 
-    /** @var Twig_Environment */
+    /**
+     * @var Twig_Environment
+     */
     protected $stringTwig;
 
-    /** @var Twig_Environment */
+    /**
+     * @var Twig_Environment
+     */
     protected $twig;
 
     public function __construct()
@@ -42,6 +50,7 @@ class TemplateManager
                 $this->loader->addPath($path);
             }
         }
+        $this->loadDocumentThemes();
         $this->loader->addPath(app()->path('themes.built-in'));
 
         $this->twig = new Twig_Environment($this->loader, [
@@ -57,19 +66,50 @@ class TemplateManager
         ]);
     }
 
+    /**
+     * @param $template
+     * @param array $variables
+     * @return string
+     */
     public function render($template, $variables = [])
     {
         return $this->twig->render($template, $variables);
     }
 
+    /**
+     * @param $string
+     * @param array $variables
+     * @return string
+     */
     public function renderString($string, $variables = [])
     {
         $this->stringLoader->setTemplate('string', $string);
         return $this->stringTwig->render('string', $variables);
     }
 
+    /**
+     * @param $template
+     * @return bool
+     */
     public function themeHasFile($template)
     {
         return $this->loader->exists($template);
+    }
+
+    /**
+     *
+     */
+    protected function loadDocumentThemes()
+    {
+        $documentConfig = @file_get_contents(app()->path('press-root', 'cli-press.json'));
+        if (! $documentConfig = json_decode($documentConfig, true)) {
+            return;
+        }
+
+        if (!isset($documentConfig['document-themes']) || !is_dir(app()->path('press-root', $documentConfig['document-themes']))) {
+            return;
+        }
+
+        $this->loader->addPath(app()->path('press-root', $documentConfig['document-themes']));
     }
 }
