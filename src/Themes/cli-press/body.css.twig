@@ -71,20 +71,32 @@ pre > code {
 
 figcaption {
     background-color: #2e2c2b;
+{% if figureCaptionAbove %}
+    border-radius: 5px 5px 0 0;
+    position: relative;
+    top: 20px;
+{% else %}
     border-radius: 0 0 5px 5px;
+    position: relative;
+    top: -20px;
+{% endif %};
     color: #DEDEDE;
     font-size: 11px;
     margin: 0 60px;
     padding: 10px 20px;
-    position: relative;
-    top: -20px;
 }
 
 figure {
     background: #AEAEAE;
+{% if figureCaptionAbove %}
+    border-radius: 0 0 5px 5px;
+{% else %}
     border-radius: 5px 5px 0 0;
+{% endif %};
+    clear: both;
     margin: 20px 60px;
     padding: 20px;
+    page-break-inside: avoid;
 }
 
 figure.caption-less {
@@ -177,10 +189,11 @@ pre.prettyprint,
 pre.prettyprintplain {
     background-color: #2E2C2B;
     border-color: #888;
-    padding: 11px ! important;
+    clear: both;
     color: #DEDEDE;
-    margin-bottom: 30px;
     font-size: 10px;
+    margin-bottom: 30px;
+    padding: 11px ! important;
 }
 
 pre {
@@ -271,6 +284,33 @@ th {
     clear: both;
     display: block;
     page-break-after: always;
+}
+
+.pull-quote {
+    background: #AEAEAE url("file://{{ __assetPath }}/quotes.png") no-repeat;
+    background-size: 100% 100%;
+    border-radius: 35px 0 35px 0;
+    margin: 15px;
+    padding: 0;
+    width: 300px;
+}
+
+.pull-quote-left {
+    float: left;
+}
+
+.pull-quote-right {
+    float: right;
+}
+.pull-quote blockquote {
+    border: none;
+    color: #2e2c2b;
+    font-size: 14pt;
+    font-weight: bold;
+    line-height: 17pt;
+    margin: 20px;
+    padding: 25px;
+    text-align: center;
 }
 
 .screenshot {

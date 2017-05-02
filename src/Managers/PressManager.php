@@ -131,6 +131,8 @@ class PressManager
 
         $this->generateRecursively($this->pressRootPath);
 
+        $this->processDocumentList();
+
         $this->setWorkingDirectory($this->workingRootPath);
 
         if (!chdir($this->pressRootPath)) {
@@ -255,6 +257,21 @@ class PressManager
         $this->prependFile($this->getWorkingFilePath('cli-press_toc.pdf'));
     }
 
+    protected function closeDocumentSection($section)
+    {
+        $sectionPath = $this->getWorkingFilePath("cli-press_$section");
+        $parts = ['', '-header', '-footer'];
+        foreach ($parts as $part) {
+            if (! $markup = file_get_contents($sectionPath . $part . '.html')) {
+                throw new CliPressException("Failed to open document section for closure: $sectionPath$part.html)");
+            }
+
+            if (!file_put_contents($sectionPath . $part . '.html', $this->pressDown->close($markup))) {
+                throw new CliPressException("Failed to close document section: $sectionPath$part.html");
+            }
+        }
+    }
+
     /**
      * @param string $pressDirectory
      * @throws CliPressException
@@ -290,18 +307,16 @@ class PressManager
 
                 $this->instructions->hasCover = true;
 
-                if ($this->isRootDocument()) {
-                    $this->instructions->hasRootCover = true;
-                } else {
+                if (!$this->isRootDocument()) {
                     $this->documentList[] = ['cover', $this->workingDirectory, $this->getCoverType()];
                 }
             }
 
             $this->documentList[] = ['body', $this->workingDirectory, $this->instructions->filename, $pressDirectory];
 
-            $this->saveWorkingFile('cli-press_header.html', $this->generateHtml('header'));
+            $this->saveWorkingFile('cli-press_body-header.html', $this->generateHtml('header'));
             $this->saveWorkingFile('cli-press_body.html', $this->generateBodyHtml($pressFiles));
-            $this->saveWorkingFile('cli-press_footer.html', $this->generateHtml('footer'));
+            $this->saveWorkingFile('cli-press_body-footer.html', $this->generateHtml('footer'));
 
             $this->console->verbose("<info>prepared leaf $pressDirectory</info>");
         }
@@ -330,10 +345,6 @@ class PressManager
         }
 
         $this->console->debug('finished in ' . $pressDirectory);
-
-        if ($this->isRootDocument()) {
-            $this->processDocumentList();
-        }
     }
 
     /**
@@ -486,6 +497,8 @@ class PressManager
                 case 'cover':
                     $this->setWorkingDirectory($documentInfo[1]);
 
+                    $this->closeDocumentSection('cover');
+
                     $pdf = new Pdf([
                         'page-offset' => $this->currentPageOffset,
                         'footer-html' => $this->getWorkingFilePath('cli-press_cover-footer.html'),
@@ -506,11 +519,13 @@ class PressManager
                 case 'body':
                     $this->setWorkingDirectory($documentInfo[1]);
 
+                    $this->closeDocumentSection('body');
+
                     $pdf = new Pdf([
                         'dump-outline' => $this->workingRootPath . DIRECTORY_SEPARATOR . sprintf('%06d', $this->currentPageOffset) . '_outline.xml',
                         'page-offset' => $this->currentPageOffset,
-                        'header-html' => $this->getWorkingFilePath('cli-press_header.html'),
-                        'footer-html' => $this->getWorkingFilePath('cli-press_footer.html'),
+                        'header-html' => $this->getWorkingFilePath('cli-press_body-header.html'),
+                        'footer-html' => $this->getWorkingFilePath('cli-press_body-footer.html'),
                     ]);
 
                     $pdf->addPage($this->getWorkingFilePath('cli-press_body.html'));
@@ -547,13 +562,14 @@ class PressManager
 
         if ($this->isRootDocument()) {
             if ($this->instructions->simpleRootCover || file_exists('cover.md')) {
+                $this->instructions->hasRootCover = true;
                 // add one for the cover
                 $this->currentPageOffset++;
+            }
 
-                if ($this->instructions->bookToc) {
-                    // add one for the ToC, two if we need to start on the right side
-                    $this->currentPageOffset +=  !$this->instructions->chapterStartsRight ? 1 : 2;
-                }
+            if ($this->instructions->bookToc) {
+                // add one for the ToC, two if we need to start on the right side (but only if there's a cover)
+                $this->currentPageOffset +=  !$this->instructions->chapterStartsRight || !$this->instructions->hasRootCover ? 1 : 2;
             }
         }
 

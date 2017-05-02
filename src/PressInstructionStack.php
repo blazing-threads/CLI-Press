@@ -38,6 +38,7 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $coverType
  * @property $extensions
  * @property $filename
+ * @property $figureCaptionAbove
  * @property $fontFamilyBlockQuoteCode
  * @property $fontFamilyBody
  * @property $fontFamilyChapterCoverAll
@@ -96,7 +97,7 @@ class PressInstructionStack
         'logo-chapter-cover', 'logo-chapter-cover-footer', 'logo-chapter-cover-header',
         'logo-root-cover', 'logo-root-cover-footer', 'logo-root-cover-header',
 
-        'chapter-title', 'footer-even-odd', 'header-even-odd', 'press-time', 'title',
+        'chapter-title', 'figure-caption-above', 'footer-even-odd', 'header-even-odd', 'press-time', 'title',
     ];
 
     /** @var ThemeManager */

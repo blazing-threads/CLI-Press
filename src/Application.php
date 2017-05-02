@@ -79,6 +79,14 @@ class Application extends Container
     }
 
     /**
+     * @return PressInstructionStack
+     */
+    public function instructions()
+    {
+        return $this->resolve(PressInstructionStack::class);
+    }
+
+    /**
      * Grab the first item tagged with the given label.
      * @param $label
      * @return mixed|null
