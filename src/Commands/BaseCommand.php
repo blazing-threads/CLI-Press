@@ -17,7 +17,7 @@
 namespace BlazingThreads\CliPress\Commands;
 
 
-use BlazingThreads\CliPress\PressConsole;
+use BlazingThreads\CliPress\PressTools\PressConsole;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;

@@ -13,7 +13,7 @@
  * file that should have been distributed with this source code.
  */
 
-namespace BlazingThreads\CliPress;
+namespace BlazingThreads\CliPress\PressTools;
 
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;

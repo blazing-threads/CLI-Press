@@ -13,8 +13,9 @@
  * file that should have been distributed with this source code.
  */
 
-namespace BlazingThreads\CliPress;
+namespace BlazingThreads\CliPress\PressTools;
 
+use BlazingThreads\CliPress\CliPressException;
 use mikehaertl\wkhtmlto\Pdf as BasePdf;
 
 class Pdf extends BasePdf

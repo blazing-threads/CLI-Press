@@ -23,6 +23,8 @@ use BlazingThreads\CliPress\Managers\LeafManager;
 use BlazingThreads\CliPress\Managers\PressManager;
 use BlazingThreads\CliPress\Managers\TemplateManager;
 use BlazingThreads\CliPress\Managers\ThemeManager;
+use BlazingThreads\CliPress\PressTools\PressConsole;
+use BlazingThreads\CliPress\PressTools\PressInstructionStack;
 use Illuminate\Container\Container;
 use Symfony\Component\Console\Application as Commander;
 
@@ -40,6 +42,7 @@ class Application extends Container
         $this['path.base'] = $basePath;
         $this['path.config'] = $this->getConfigurationDir();
         $this['path.themes.built-in'] = $basePath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Themes';
+        $this['path.assets'] = $basePath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'assets';
         $this['path.press-root'] = getcwd();
 
         // register singletons

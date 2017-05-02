@@ -13,8 +13,9 @@
  * file that should have been distributed with this source code.
  */
 
-namespace BlazingThreads\CliPress;
+namespace BlazingThreads\CliPress\PressTools;
 
+use BlazingThreads\CliPress\CliPressException;
 use BlazingThreads\CliPress\Managers\ThemeManager;
 
 /**
@@ -34,7 +35,6 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $chapterStartsAfterEmptyPage
  * @property $chapterStartsRight
  * @property $chapterTitle
- * @property $constants
  * @property $coverType
  * @property $extensions
  * @property $filename
@@ -70,6 +70,7 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $logoRootCoverHeader
  * @property $logoHeader
  * @property $presets
+ * @property $pressVariables
  * @property $pressTime
  * @property $simpleRootCover
  * @property $theme
@@ -116,7 +117,7 @@ class PressInstructionStack
         $this->pressDirectory = app()->path('press-root');
 
         $this->validSettings = $this->themeManager->getThemeDefaults('cli-press');
-        $this->validSettings['logo-all'] = addcslashes('file://' . app()->path('base', 'src/assets/logo.png'), '/');
+        $this->validSettings['logo-all'] = addcslashes('file://' . app()->path('assets', 'images/logo.png'), '/');
 
         $instructions = $this->validSettings;
         $instructions['press-time'] = date('Y-m-d H:i:s');
@@ -160,7 +161,7 @@ class PressInstructionStack
             $variables[camelCase($variable)] = $this->instructions[$variable];
         }
 
-        return array_merge($variables, $this->instructions['constants'], ['__assetPath' => app()->path('base', 'src/assets')]);
+        return array_merge($variables, $this->instructions['press-variables'], ['__assetPath' => app()->path('assets')]);
     }
 
     /**
@@ -187,8 +188,8 @@ class PressInstructionStack
             $this->instructions['filename'] = preg_replace('/[^\w\._-]/', '-', $this->instructions['title']);
         }
 
-        if (!key_exists('constants', $this->instructions)) {
-            $this->instructions['constants'] = [];
+        if (!key_exists('press-variables', $this->instructions)) {
+            $this->instructions['press-variables'] = [];
         }
 
         $this->validateConfiguration();
@@ -303,16 +304,16 @@ class PressInstructionStack
 
         unset($base['ignore'], $basePreset['ignore'], $overlay['ignore'], $overlayPreset['ignore'], $themeDefaults['ignore'], $themePreset['ignore']);
 
-        $result['constants'] = array_merge(
-            key_exists('constants', $basePreset) ? $basePreset['constants'] : [],
-            key_exists('constants', $base) ? $base['constants'] : [],
-            key_exists('constants', $themePreset) ? $themePreset['constants'] : [],
-            key_exists('constants', $themeDefaults) ? $themeDefaults['constants'] : [],
-            key_exists('constants', $overlayPreset) ? $overlayPreset['constants'] : [],
-            key_exists('constants', $overlay) ? $overlay['constants'] : []
+        $result['press-variables'] = array_merge(
+            key_exists('press-variables', $basePreset) ? $basePreset['press-variables'] : [],
+            key_exists('press-variables', $base) ? $base['press-variables'] : [],
+            key_exists('press-variables', $themePreset) ? $themePreset['press-variables'] : [],
+            key_exists('press-variables', $themeDefaults) ? $themeDefaults['press-variables'] : [],
+            key_exists('press-variables', $overlayPreset) ? $overlayPreset['press-variables'] : [],
+            key_exists('press-variables', $overlay) ? $overlay['press-variables'] : []
         );
 
-        unset($base['constants'], $basePreset['constants'], $overlay['constants'], $overlayPreset['constants'], $themeDefaults['constants'], $themePreset['constants']);
+        unset($base['press-variables'], $basePreset['press-variables'], $overlay['press-variables'], $overlayPreset['press-variables'], $themeDefaults['press-variables'], $themePreset['press-variables']);
 
         if (!key_exists('chapter-title', $overlay) && !key_exists('chapter-title', $overlayPreset)
             && !key_exists('chapter-title', $themeDefaults) && !key_exists('chapter-title', $themePreset)
@@ -333,8 +334,8 @@ class PressInstructionStack
             throw new CliPressException('Press instruction "extensions" must be a non-empty array');
         }
 
-        if (!key_exists('constants', $this->instructions) || !is_array($this->instructions['constants'])) {
-            throw new CliPressException('Press instruction "constants" must be an associative array of name => value pairs');
+        if (!key_exists('press-variables', $this->instructions) || !is_array($this->instructions['press-variables'])) {
+            throw new CliPressException('Press instruction "press-variables" must be an associative array of name => value pairs');
         }
     }
 }

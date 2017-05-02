@@ -14,19 +14,15 @@
             * file that should have been distributed with this source code.
         -->
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.js"></script>
-        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.css">
-        {% if __withFA %}
-            <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-                  rel="stylesheet"
-                  integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
-                  crossorigin="anonymous" />
-        {% endif %}
+        <script src="file://{{ __assetPath }}/js/jquery.js"></script>
+        <script src="file://{{ __assetPath }}/js/bootstrap.js"></script>
+        <link rel="stylesheet" href="file://{{ __assetPath }}/css/bootstrap.css">
         <script>
             {{ __commonJs }}
         </script>
         <style>
+            {{ __commonCss }}
+
             {{ __baseCss }}
 
             {{ __themeCss }}
@@ -39,6 +35,6 @@
                 $(this).addClass($(this).find("code.language-none").length == 0 ? "prettyprint" : "prettyprintplain");
             });
         </script>
-        <script src="http://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+        <script src="file://{{ __assetPath }}/js/run_prettify.js"></script>
     </body>
 </html>

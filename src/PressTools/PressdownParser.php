@@ -13,7 +13,9 @@
  * file that should have been distributed with this source code.
  */
 
-namespace BlazingThreads\CliPress;
+namespace BlazingThreads\CliPress\PressTools;
+
+use BlazingThreads\CliPress\CliPressException;
 
 class PressdownParser extends \ParsedownExtra
 {
@@ -31,6 +33,11 @@ class PressdownParser extends \ParsedownExtra
      * @var int
      */
     protected $currentFigure = 1;
+
+    /**
+     * @var int
+     */
+    protected $currentTable = 1;
 
     /**
      * @var array
@@ -60,11 +67,13 @@ class PressdownParser extends \ParsedownExtra
     protected $pullQuotes = [];
 
     /**
-     * If the last parsed markup contained the Font Awesome directive.
-     * @var bool
+     * @var array
      */
-    protected $hasFA = false;
+    protected $tables = [];
 
+    /**
+     * PressdownParser constructor.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -74,14 +83,20 @@ class PressdownParser extends \ParsedownExtra
         $this->preDirectives['fontAwesome'] = '/(@|)\{f@([a-z0-9 -]+)\}/';
         $this->preDirectives['pageBreak'] = '/(@|)\{break}/';
         $this->preDirectives['pullQuote'] = '/(@|)pq\{(.+)\}\((left|right|)\s?([a-zA-Z0-9_-]*)\)/U';
+        $this->preDirectives['table'] = '/^(@|)table-(\d+)\{(.+)^\}#([a-zA-Z0-9_a]+)\((.*)\)(?=$)/sUm';
 
         $this->postDirectives['figureLink'] = '/(@|)f\{(.*)\}\((.+)\)/U';
         $this->postDirectives['pullQuoteAnchor'] = '/(@|)pqa\{([a-zA-Z0-9_-]+)\}/U';
+        $this->postDirectives['tableLink'] = '/(@|)t\{(.*)\}\((.+)\)/U';
 
         $this->finalDirectives['escapedCodeBlocks'] = '/^(\s*@)```/m';
         $this->finalDirectives['escapedTwigExpression'] = '/()\{@\{ (.+) \}\}/';
     }
 
+    /**
+     * @param $markup
+     * @return mixed
+     */
     public function close($markup)
     {
         $markup = $this->processDirectives('post', $markup);
@@ -90,16 +105,40 @@ class PressdownParser extends \ParsedownExtra
 
     /**
      * @param $markup
-     * @return PressedLeaf
+     * @return string
      */
     public function parse($markup)
     {
         $markup = $this->processDirectives('pre', $markup);
         $markup = $this->processDirectives('block', $markup);
+        return parent::parse($markup);
+    }
+
+    /**
+     * @param $markup
+     * @param bool $stripPTags
+     * @return mixed|string
+     */
+    public function parseMarkdown($markup, $stripPTags = true)
+    {
         $markup = parent::parse($markup);
-        $leaf = new PressedLeaf($markup, $this->hasFA);
-        $this->hasFA = false;
-        return $leaf;
+        return $stripPTags ? $this->stripMarkdownPTags($markup) : $markup;
+    }
+
+    /**
+     * @param $type
+     * @param $pattern
+     * @param callable $callback
+     * @throws CliPressException
+     */
+    public function registerDirective($type, $pattern, callable $callback)
+    {
+        if (!preg_match('/(pre|post|block|final)/', $type)) {
+            throw new CliPressException("Expected one of: pre, post, block, final.  Received: " . @(string) $type);
+        }
+
+        $type = $type . 'Directives';
+        $this->$type[$pattern] = $callback;
     }
 
     /**
@@ -198,10 +237,10 @@ class PressdownParser extends \ParsedownExtra
                 throw new CliPressException("The Figure Directive must use unique figure names.  The name '$matches[2]' is already defined.");
             }
             $this->figures[$matches[2]] = $this->currentFigure++;
-            $caption = "<figcaption>Figure $this->currentFigure: $matches[6]</figcaption>";
+            $caption = "<figcaption>Figure {$this->figures[$matches[2]]}: $matches[6]</figcaption>";
             $class = '';
             // this fakes out wkhtmltopdf so that the /Dest is stored within the PDF object stream
-            $anchor = "<a href=\"#$matches[2]\" name=\"$matches[2]\">&nbsp;</a>";
+            $anchor = "<a href=\"#figure-$matches[2]\" name=\"figure-$matches[2]\">&nbsp;</a>";
         }
         $captionAbove = app()->instructions()->figureCaptionAbove ? "\n$caption" : '';
         $captionBelow = $captionAbove ? '' : "$caption\n";
@@ -222,7 +261,7 @@ class PressdownParser extends \ParsedownExtra
         $figure = $this->figures[$matches[3]];
         $text = empty($matches[2]) ? '' : ": $matches[2]";
 
-        return "<a href=\"curator#$matches[3]\">Figure $figure$text</a>";
+        return "<a href=\"curator#figure-$matches[3]\">Figure $figure$text</a>";
     }
 
     /**
@@ -292,7 +331,7 @@ class PressdownParser extends \ParsedownExtra
     {
         $content = $this->stripMarkdownPTags(parent::parse($matches[2]));
         $float = 'pull-quote-' . (!empty($matches[3]) ? $matches[3] : 'left');
-        $quote = "<aside class=\"pull-quote $float\"><blockquote>$content</blockquote></aside>";
+        $quote = "<aside class=\"pull-quote $float\"><span class=\"pull-quote-left-quote\">&ldquo;</span><blockquote>$content</blockquote><span class=\"pull-quote-right-quote\">&rdquo;</span></aside>";
         if (!empty($matches[4])) {
             if (isset($this->pullQuotes[$matches[4]])) {
                 throw new CliPressException("Expected unique Pull Quote Anchor name but it already exists: $matches[4].");
@@ -325,5 +364,32 @@ class PressdownParser extends \ParsedownExtra
     protected function stripMarkdownPTags($markup)
     {
         return preg_replace('/<\/?p>/', '', $markup);
+    }
+
+    /**
+     * @param $matches
+     * @return SimpleTable
+     */
+    protected function table($matches)
+    {
+        $this->tables[$matches[4]] = $this->currentTable++;
+
+        return new SimpleTable($matches, $this->tables[$matches[4]]);
+    }
+
+    /**
+     * @param $matches
+     * @return string
+     */
+    protected function tableLink($matches)
+    {
+        if (!key_exists($matches[3], $this->tables)) {
+            return '';
+        }
+
+        $table = $this->tables[$matches[3]];
+        $text = empty($matches[2]) ? '' : ": $matches[2]";
+
+        return "<a href=\"curator#table-$matches[3]\">Table $table$text</a>";
     }
 }

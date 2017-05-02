@@ -14,7 +14,7 @@
 body {
     background: #ffffff;
     color: #222222;
-    font-size: 15px;
+    font-size: 11pt;
     font-family: {{ fontFamilyBody }};
     line-height: 1.6 !important;
     padding: 5px 20px 20px 20px;
@@ -43,6 +43,12 @@ blockquote > :last-child {
 
 blockquote cite:before {
     content: '\2014 \00A0'
+}
+
+caption,
+caption a {
+    color: #2e2c2b;
+    font-weight: bold;
 }
 
 p > code,
@@ -258,6 +264,7 @@ pre .fun {
 table {
     border: 1px solid #ccc;
     margin-top: 20px;
+    page-break-inside: avoid;
 }
 
 table tr th,
@@ -265,19 +272,21 @@ table tr td {
     border: 1px solid #e6e6e6;
 }
 
-table tr:nth-child(2n) {
-    background-color: #f2f2f2;
-}
-
 td, th {
     background-color: #fafafa;
     border: 1px solid #ccc;
+    font-size: .85em;
     padding: 5px;
 }
 
 th {
-    background: #222;
-    color: #efefef;
+    background: #2e2c2b;
+    color: #DEDEDE;
+}
+
+tfoot td, tfoot th {
+    background: #AEAEAE;
+    color: #222222;
 }
 
 .break {
@@ -287,8 +296,8 @@ th {
 }
 
 .pull-quote {
-    background: #AEAEAE url("file://{{ __assetPath }}/quotes.png") no-repeat;
-    background-size: 100% 100%;
+    background: #AEAEAE; {# url("file://{{ __assetPath }}/images/quotes.png") no-repeat; #}
+    {#background-size: 100% 100%;#}
     border-radius: 35px 0 35px 0;
     margin: 15px;
     padding: 0;
@@ -302,6 +311,7 @@ th {
 .pull-quote-right {
     float: right;
 }
+
 .pull-quote blockquote {
     border: none;
     color: #2e2c2b;
@@ -313,7 +323,31 @@ th {
     text-align: center;
 }
 
+.pull-quote-left-quote,
+.pull-quote-right-quote {
+    color: #2e2c2b;
+    font-family: Shrikhand, serif;
+    font-size: 75px;
+    line-height: 0;
+    position: relative;
+}
+
+.pull-quote-left-quote {
+    float: left;
+    left: 5px;
+    top: 45px;
+}
+
+.pull-quote-right-quote {
+    float: right;
+    left: -15px;
+    top: -5px;
+}
+
 .screenshot {
     width: 100%;
 }
 
+.table-striped > tbody > tr:nth-of-type(odd) td {
+    background-color: #f2f2f2;
+}

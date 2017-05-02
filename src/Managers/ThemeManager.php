@@ -15,7 +15,7 @@
 
 namespace BlazingThreads\CliPress\Managers;
 
-use BlazingThreads\CliPress\PressConsole;
+use BlazingThreads\CliPress\PressTools\PressConsole;
 
 class ThemeManager
 {

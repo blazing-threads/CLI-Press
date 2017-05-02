@@ -16,10 +16,10 @@
 namespace BlazingThreads\CliPress\Managers;
 
 use BlazingThreads\CliPress\CliPressException;
-use BlazingThreads\CliPress\Pdf;
-use BlazingThreads\CliPress\PressConsole;
-use BlazingThreads\CliPress\PressdownParser;
-use BlazingThreads\CliPress\PressInstructionStack;
+use BlazingThreads\CliPress\PressTools\Pdf;
+use BlazingThreads\CliPress\PressTools\PressConsole;
+use BlazingThreads\CliPress\PressTools\PressdownParser;
+use BlazingThreads\CliPress\PressTools\PressInstructionStack;
 
 class PressManager
 {
@@ -238,8 +238,11 @@ class PressManager
             unset($chapter);
         }
 
+        $__commonCss = $this->themeManager->getThemeFile('common.css.twig', [], true);
+        $__baseCss = $this->themeManager->getThemeFile('toc.css.twig', [], true);
+        $__themeCss = $this->themeManager->getThemeFile('toc.css.twig');
         $xsl = new \DOMDocument();
-        $xsl->loadXML($this->themeManager->getFirstFile('toc.xsl.twig'));
+        $xsl->loadXML($this->themeManager->getFirstFile('toc.xsl.twig', compact('__commonCss', '__baseCss', '__themeCss')));
 
         $processor = new \XSLTProcessor();
         $processor->importStylesheet($xsl);
@@ -353,6 +356,7 @@ class PressManager
      * @return string
      */
     protected function generateBodyHtml($files) {
+        $__commonCss = $this->themeManager->getThemeFile('common.css.twig', [], true);
         $__baseCss = $this->themeManager->getThemeFile('body.css.twig', [], true);
         $__themeCss = $this->themeManager->getThemeFile('body.css.twig');
         $__commonJs = $this->themeManager->getFirstFile('common.js');
@@ -372,11 +376,10 @@ class PressManager
                 $__html .= "\n{break}\n";
             }
 
-            $__html .= $this->templateManager->renderString(file_get_contents($file), $this->instructions->constants);
+            $__html .= $this->templateManager->renderString(file_get_contents($file), $this->instructions->pressVariables);
         }
         $__html = $this->pressDown->parse($__html);
-        $__withFA = $__html->hasFA();
-        return $this->themeManager->getFirstFile('body-layout.html.twig', compact('__baseCss', '__themeCss', '__commonJs', '__html', '__withFA'));
+        return $this->themeManager->getFirstFile('body-layout.html.twig', compact('__commonCss', '__baseCss', '__themeCss', '__commonJs', '__html'));
     }
 
     /**
@@ -386,12 +389,12 @@ class PressManager
      */
     protected function generateHtml($type, $variables = [])
     {
+        $__commonCss = $this->themeManager->getThemeFile('common.css.twig', [], true);
         $__baseCss = $this->themeManager->getThemeFile($type . '.css.twig', [], true);
         $__themeCss = $this->themeManager->getThemeFile($type . '.css.twig');
         $__commonJs = $this->themeManager->getFirstFile('common.js');
         $__content = $this->pressDown->parse($this->themeManager->getFirstFile($type . '.html.twig', $variables));
-        $__withFA = $__content->hasFA();
-        return $this->themeManager->getFirstFile($type . '-layout.html.twig', compact('__baseCss', '__themeCss', '__commonJs', '__content', '__withFA'));
+        return $this->themeManager->getFirstFile($type . '-layout.html.twig', compact('__commonCss', '__baseCss', '__themeCss', '__commonJs', '__content'));
     }
 
     /**

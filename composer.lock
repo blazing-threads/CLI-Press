@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fd664b94113ddc8c00034c337eeda0b4",
+    "hash": "70b13135cc6979bbc11a175a0846e3af",
     "content-hash": "097caea5139f78977ecb2df29fb63ae8",
     "packages": [
         {
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/blazing-threads/pdf-curator.git",
-                "reference": "d611f6ecf24bcb082a4e367a4f69cddc54e9dd9d"
+                "reference": "0b1b0d607435af10e71f5823bac34d08e06a562f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/blazing-threads/pdf-curator/zipball/d611f6ecf24bcb082a4e367a4f69cddc54e9dd9d",
-                "reference": "d611f6ecf24bcb082a4e367a4f69cddc54e9dd9d",
+                "url": "https://api.github.com/repos/blazing-threads/pdf-curator/zipball/0b1b0d607435af10e71f5823bac34d08e06a562f",
+                "reference": "0b1b0d607435af10e71f5823bac34d08e06a562f",
                 "shasum": ""
             },
             "require": {
@@ -49,7 +49,7 @@
                 }
             ],
             "description": "A PDF merger that resolves and maintains internal page links, including cross-file internal links.",
-            "time": "2017-04-24 19:06:34"
+            "time": "2017-05-02 20:52:48"
         },
         {
             "name": "erusev/parsedown",
