@@ -80,6 +80,7 @@ class PressdownParser extends \ParsedownExtra
         $this->blockDirectives['figure'] = '/(@|)\{=fig-([a-zA-Z0-9_-]+)\s+(.+)(\s+)fig=\}(\((.+)\))??/sUm';
         $this->blockDirectives['classed'] = '/(@|)\{@([abcdflopsux]|fc|blockquote|code|div|figure|figcaption|li|ol|span|ul)-([a-zA-Z-\.]*)\s+(.+)(\s+)\2@\}/sUm';
 
+        $this->preDirectives['keyword'] = '/(@|)\^([^\^]+)\^/';
         $this->preDirectives['fontAwesome'] = '/(@|)\{f@([a-z0-9 -]+)\}/';
         $this->preDirectives['pageBreak'] = '/(@|)\{break}/';
         $this->preDirectives['pullQuote'] = '/(@|)pq\{(.+)\}\((left|right|)\s?([a-zA-Z0-9_-]*)\)/U';
@@ -270,7 +271,6 @@ class PressdownParser extends \ParsedownExtra
      */
     protected function fontAwesome($matches)
     {
-        $this->hasFA = true;
         $matches = explode(' ', $matches[2]);
         $icon = array_shift($matches);
 
@@ -282,6 +282,15 @@ class PressdownParser extends \ParsedownExtra
         }
 
         return "<i class=\"fa fa-$icon$classes\"></i>";
+    }
+
+    /**
+     * @param $matches
+     * @return string
+     */
+    protected function keyword($matches)
+    {
+        return "<em class=\"keyword\">$matches[2]</em>";
     }
 
     /**
