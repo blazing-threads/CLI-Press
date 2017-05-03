@@ -70,7 +70,7 @@ class PressManager
     /**
      * @var PressdownParser
      */
-    protected $pressDown;
+    protected $pressdown;
 
     /**
      * Current press directory
@@ -106,7 +106,7 @@ class PressManager
      */
     protected $workingRootPath;
 
-    public function __construct(TemplateManager $templateManager, ThemeManager $themeManager, LeafManager $leafManager, PressInstructionStack $instructions, PressConsole $console)
+    public function __construct(TemplateManager $templateManager, ThemeManager $themeManager, LeafManager $leafManager, PressInstructionStack $instructions, PressConsole $console, PressdownParser $pressdown)
     {
         $this->templateManager = $templateManager;
         $this->themeManager = $themeManager;
@@ -114,7 +114,7 @@ class PressManager
         $this->instructions = $instructions;
         $this->console = $console;
 
-        $this->pressDown = new PressdownParser();
+        $this->pressdown = $pressdown;
         $this->pressRootPath = app()->path('press-root');
     }
 
@@ -269,7 +269,7 @@ class PressManager
                 throw new CliPressException("Failed to open document section for closure: $sectionPath$part.html)");
             }
 
-            if (!file_put_contents($sectionPath . $part . '.html', $this->pressDown->close($markup))) {
+            if (!file_put_contents($sectionPath . $part . '.html', $this->pressdown->close($markup))) {
                 throw new CliPressException("Failed to close document section: $sectionPath$part.html");
             }
         }
@@ -378,7 +378,7 @@ class PressManager
 
             $__html .= $this->templateManager->renderString(file_get_contents($file), $this->instructions->pressVariables);
         }
-        $__html = $this->pressDown->parse($__html);
+        $__html = $this->pressdown->parse($__html);
         return $this->themeManager->getFirstFile('body-layout.html.twig', compact('__commonCss', '__baseCss', '__themeCss', '__commonJs', '__html'));
     }
 
@@ -393,7 +393,7 @@ class PressManager
         $__baseCss = $this->themeManager->getThemeFile($type . '.css.twig', [], true);
         $__themeCss = $this->themeManager->getThemeFile($type . '.css.twig');
         $__commonJs = $this->themeManager->getFirstFile('common.js');
-        $__content = $this->pressDown->parse($this->themeManager->getFirstFile($type . '.html.twig', $variables));
+        $__content = $this->pressdown->parse($this->themeManager->getFirstFile($type . '.html.twig', $variables));
         return $this->themeManager->getFirstFile($type . '-layout.html.twig', compact('__commonCss', '__baseCss', '__themeCss', '__commonJs', '__content'));
     }
 

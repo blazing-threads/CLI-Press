@@ -23,7 +23,21 @@ use BlazingThreads\CliPress\Managers\LeafManager;
 use BlazingThreads\CliPress\Managers\PressManager;
 use BlazingThreads\CliPress\Managers\TemplateManager;
 use BlazingThreads\CliPress\Managers\ThemeManager;
+use BlazingThreads\CliPress\PressTools\Directives\ClassedBlock;
+use BlazingThreads\CliPress\PressTools\Directives\EscapedCodeBlock;
+use BlazingThreads\CliPress\PressTools\Directives\EscapedTwigExpression;
+use BlazingThreads\CliPress\PressTools\Directives\Figure;
+use BlazingThreads\CliPress\PressTools\Directives\FigureLink;
+use BlazingThreads\CliPress\PressTools\Directives\FontAwesome;
+use BlazingThreads\CliPress\PressTools\Directives\Keywords;
+use BlazingThreads\CliPress\PressTools\Directives\PageBreak;
+use BlazingThreads\CliPress\PressTools\Directives\PullQuote;
+use BlazingThreads\CliPress\PressTools\Directives\PullQuoteAnchor;
+use BlazingThreads\CliPress\PressTools\Directives\Table;
+use BlazingThreads\CliPress\PressTools\Directives\TableAbstract;
+use BlazingThreads\CliPress\PressTools\Directives\TableLink;
 use BlazingThreads\CliPress\PressTools\PressConsole;
+use BlazingThreads\CliPress\PressTools\PressdownParser;
 use BlazingThreads\CliPress\PressTools\PressInstructionStack;
 use Illuminate\Container\Container;
 use Symfony\Component\Console\Application as Commander;
@@ -53,6 +67,9 @@ class Application extends Container
         $this->singleton(LeafManager::class);
         $this->singleton(Commander::class);
         $this->singleton(PressInstructionStack::class);
+        $this->singleton(PullQuote::class);
+        $this->singleton(Figure::class);
+        $this->singleton(TableLink::class);
 
         // tag all commands
         $this->tag(Configure::class, ['command', 'command.configure']);
@@ -61,6 +78,26 @@ class Application extends Container
 
         // register the cleanup script
         register_shutdown_function([$this, 'cleanup']);
+
+        // define the Pressdown directive registration callback
+        $this->resolving(PressdownParser::class, function(PressdownParser $pressdown, Application $app) {
+            $pressdown->registerDirective('pre', new Keywords());
+            $pressdown->registerDirective('pre', new FontAwesome());
+            $pressdown->registerDirective('pre', new PageBreak());
+
+            $pressdown->registerDirective('block', $app->make(PullQuote::class));
+            $pressdown->registerDirective('block', new Table());
+            $pressdown->registerDirective('block', $app->make(Figure::class));
+            $pressdown->registerDirective('block', new ClassedBlock());
+
+            $pressdown->registerDirective('post', new FigureLink());
+            $pressdown->registerDirective('post', new PullQuoteAnchor());
+            $pressdown->registerDirective('post', $app->make(TableLink::class));
+
+            $pressdown->registerDirective('final', new EscapedCodeBlock());
+            $pressdown->registerDirective('final', new EscapedTwigExpression());
+            $pressdown->registerDirective('final', new TableAbstract());
+        });
     }
 
     /**

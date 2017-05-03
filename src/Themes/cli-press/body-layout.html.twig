@@ -31,7 +31,7 @@
     <body>
         {{ __html }}
         <script type="text/javascript">
-            $(document).find("pre").not('.prettyprint').each(function(){
+            $(document).find("pre").not('.prettyprint').not('.prettyprintplain').each(function(){
                 $(this).addClass($(this).find("code.language-none").length == 0 ? "prettyprint" : "prettyprintplain");
             });
         </script>

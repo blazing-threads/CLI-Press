@@ -75,10 +75,20 @@ pre > code {
     font-size: 1em;
 }
 
-em.keyword {
+em.keyword1,
+em.keyword2,
+em.keyword3 {
     color: #4E5D84;
     font-size: .9em;
     font-weight: bold;
+}
+
+em.keyword2 {
+    color: #cb8ada;
+}
+
+em.keyword3 {
+    color: #D5DB95;
 }
 
 figcaption {
@@ -208,6 +218,10 @@ pre.prettyprintplain {
     padding: 11px ! important;
 }
 
+pre p {
+    margin: 0;
+}
+
 pre {
     font-size: 10px;
     margin-bottom: 30px;
@@ -293,6 +307,34 @@ th {
 tfoot td, tfoot th {
     background: #AEAEAE;
     color: #222222;
+}
+
+code.pressdown {
+    background-color: #2E2C2B;
+    border-color: #888;
+    color: #8c857f;
+}
+
+pre.prettyprintplain code.pressdown {
+    border: none;
+}
+
+code.pressdown .pd-directive {
+    color: #cb8ada;
+    font-weight: bold;
+}
+
+code.pressdown .pd-literal {
+    color: #95C2E8;
+    font-weight: bold;
+}
+
+code.pressdown .pd-option {
+    color: #D5DB95;
+}
+
+code.pressdown .pd-pressdown {
+    color: #DEDEDE;
 }
 
 .break {

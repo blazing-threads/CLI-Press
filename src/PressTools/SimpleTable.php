@@ -66,8 +66,8 @@ class SimpleTable
     {
         $this->columnCount = $matches[2];
         $this->content = $matches[3];
-        $this->name = $matches[4];
-        $this->caption = $matches[5];
+        $this->caption = $matches[4];
+        $this->name = $matches[5];
         $this->label = $label;
         $this->buildMarkup();
     }
@@ -163,6 +163,9 @@ class SimpleTable
         return $this->currentSectionType === $type;
     }
 
+    /**
+     * @param $type
+     */
     protected function startSection($type)
     {
         if ($this->inSection($type)) {
