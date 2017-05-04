@@ -103,9 +103,19 @@ figcaption {
     top: -20px;
 {% endif %};
     color: #DEDEDE;
-    font-size: 11px;
+    font-size: 10pt;
     margin: 0 60px;
     padding: 10px 20px;
+}
+
+figcaption ~ h1,
+figcaption ~ h2,
+figcaption ~ h3,
+figcaption ~ h4,
+figcaption ~ h5,
+figcaption ~ h6,
+figcaption ~ p {
+    margin-top: 0;
 }
 
 figure {
@@ -121,6 +131,15 @@ figure {
     page-break-inside: avoid;
 }
 
+figure p > code {
+    background-color: #efefef;
+}
+
+figure p:first-of-type,
+figure table:first-of-type {
+    margin-top: 0;
+}
+
 figure.caption-less {
     border-radius: 5px;
 }
@@ -128,6 +147,11 @@ figure.caption-less {
 figure pre.prettyprint,
 figure pre.prettyprintplain {
     margin: 10px 0;
+}
+
+figure p:last-of-type,
+figure table:last-of-type {
+    margin-bottom: 0;
 }
 
 h1 {
@@ -213,7 +237,7 @@ pre.prettyprintplain {
     border-color: #888;
     clear: both;
     color: #DEDEDE;
-    font-size: 10px;
+    font-size: 10pt;
     margin-bottom: 30px;
     padding: 11px ! important;
 }
@@ -309,87 +333,10 @@ tfoot td, tfoot th {
     color: #222222;
 }
 
-code.pressdown {
-    background-color: #2E2C2B;
-    border-color: #888;
-    color: #8c857f;
-}
-
-pre.prettyprintplain code.pressdown {
-    border: none;
-}
-
-code.pressdown .pd-directive {
-    color: #cb8ada;
-    font-weight: bold;
-}
-
-code.pressdown .pd-literal {
-    color: #95C2E8;
-    font-weight: bold;
-}
-
-code.pressdown .pd-option {
-    color: #D5DB95;
-}
-
-code.pressdown .pd-pressdown {
-    color: #DEDEDE;
-}
-
 .break {
     clear: both;
     display: block;
     page-break-after: always;
-}
-
-.pull-quote {
-    background: #AEAEAE; {# url("file://{{ __assetPath }}/images/quotes.png") no-repeat; #}
-    {#background-size: 100% 100%;#}
-    border-radius: 35px 0 35px 0;
-    margin: 15px;
-    padding: 0;
-    width: 300px;
-}
-
-.pull-quote-left {
-    float: left;
-}
-
-.pull-quote-right {
-    float: right;
-}
-
-.pull-quote blockquote {
-    border: none;
-    color: #2e2c2b;
-    font-size: 14pt;
-    font-weight: bold;
-    line-height: 17pt;
-    margin: 20px;
-    padding: 25px;
-    text-align: center;
-}
-
-.pull-quote-left-quote,
-.pull-quote-right-quote {
-    color: #2e2c2b;
-    font-family: Shrikhand, serif;
-    font-size: 75px;
-    line-height: 0;
-    position: relative;
-}
-
-.pull-quote-left-quote {
-    float: left;
-    left: 5px;
-    top: 45px;
-}
-
-.pull-quote-right-quote {
-    float: right;
-    left: -15px;
-    top: -5px;
 }
 
 .screenshot {

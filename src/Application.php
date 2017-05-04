@@ -23,6 +23,7 @@ use BlazingThreads\CliPress\Managers\LeafManager;
 use BlazingThreads\CliPress\Managers\PressManager;
 use BlazingThreads\CliPress\Managers\TemplateManager;
 use BlazingThreads\CliPress\Managers\ThemeManager;
+use BlazingThreads\CliPress\PressTools\Directives\Alert;
 use BlazingThreads\CliPress\PressTools\Directives\ClassedBlock;
 use BlazingThreads\CliPress\PressTools\Directives\EscapedCodeBlock;
 use BlazingThreads\CliPress\PressTools\Directives\EscapedTwigExpression;
@@ -33,6 +34,7 @@ use BlazingThreads\CliPress\PressTools\Directives\Keywords;
 use BlazingThreads\CliPress\PressTools\Directives\PageBreak;
 use BlazingThreads\CliPress\PressTools\Directives\PullQuote;
 use BlazingThreads\CliPress\PressTools\Directives\PullQuoteAnchor;
+use BlazingThreads\CliPress\PressTools\Directives\PullQuoteFix;
 use BlazingThreads\CliPress\PressTools\Directives\Table;
 use BlazingThreads\CliPress\PressTools\Directives\TableAbstract;
 use BlazingThreads\CliPress\PressTools\Directives\TableLink;
@@ -85,10 +87,11 @@ class Application extends Container
             $pressdown->registerDirective('pre', new FontAwesome());
             $pressdown->registerDirective('pre', new PageBreak());
 
+            $pressdown->registerDirective('block', new ClassedBlock());
+            $pressdown->registerDirective('block', new Alert());
             $pressdown->registerDirective('block', $app->make(PullQuote::class));
             $pressdown->registerDirective('block', new Table());
             $pressdown->registerDirective('block', $app->make(Figure::class));
-            $pressdown->registerDirective('block', new ClassedBlock());
 
             $pressdown->registerDirective('post', new FigureLink());
             $pressdown->registerDirective('post', new PullQuoteAnchor());
@@ -97,6 +100,7 @@ class Application extends Container
             $pressdown->registerDirective('final', new EscapedCodeBlock());
             $pressdown->registerDirective('final', new EscapedTwigExpression());
             $pressdown->registerDirective('final', new TableAbstract());
+            $pressdown->registerDirective('final', new PullQuoteFix());
         });
     }
 

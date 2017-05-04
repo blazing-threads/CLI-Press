@@ -15,12 +15,17 @@
 
 namespace BlazingThreads\CliPress\PressTools\Directives;
 
-class EscapedCodeBlock extends BaseDirective
+class PullQuoteFix extends BaseDirective
 {
+    /**
+     * @var bool
+     */
+    protected $neverEscape = true;
+
     /**
      * @var string
      */
-    protected $pattern = '/^(\s*@)```/m';
+    protected $pattern = '/(<p>[^\n\r\f]*)(<aside class="pull-quote[^\"]*(right|left)">.*<\/aside>)(.*<\/p>)/sUm';
 
     /**
      * @param $matches
@@ -28,8 +33,8 @@ class EscapedCodeBlock extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new SyntaxHighlighter();
-        return $markup->addLiteral('@```');
+        // this should never be called
+        return 'bad juju';
     }
 
     /**
@@ -38,7 +43,6 @@ class EscapedCodeBlock extends BaseDirective
      */
     protected function process($matches)
     {
-        // this should never get called
-        return 'bad juju';
+        return $matches[3] == 'right' ? "$matches[1]$matches[4]$matches[2]" : "$matches[2]$matches[1]$matches[4]";
     }
 }

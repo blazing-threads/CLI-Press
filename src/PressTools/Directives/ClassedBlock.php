@@ -15,6 +15,8 @@
 
 namespace BlazingThreads\CliPress\PressTools\Directives;
 
+use BlazingThreads\CliPress\PressTools\PressdownParser;
+
 class ClassedBlock extends BaseDirective
 {
     /**
@@ -28,7 +30,7 @@ class ClassedBlock extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         $markup->addLiteral('{@')
             ->addDirective($matches[2])
             ->addLiteral('-')
@@ -52,9 +54,9 @@ class ClassedBlock extends BaseDirective
      */
     protected function process($matches)
     {
-        $stripPTags = empty($matches[6]) || strpos($matches[6], 'no-strip-p-tags') === false;
-        $matches[4] = preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[4]);
+        $stripPTags = !empty($matches[6]) && $matches[6] == '-p';
         $matches[4] = $this->parseMarkdown($matches[4], $stripPTags);
+        $matches[4] = app()->make(PressdownParser::class)->processDirectives('block', $matches[4]); //preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[4]);
         switch ($matches[2]) {
             case 'a':
                 $tag = 'a';

@@ -30,6 +30,8 @@ class Figure extends BaseDirective
     protected $figures = [];
 
     /**
+     * interesting tidbit below. forces a newline on the closing tag, preceded by optional whitespace
+     * ((@)|^\s*)figure\{(.+)(?(2)|^\s*)\}\((.*)\)?#([a-zA-Z0-9_-]+?)
      * @var string
      */
     protected $pattern = '/(@|)figure\{(.+)\}\((.*)\)?#([a-zA-Z0-9_-]+?)/sUm';
@@ -49,12 +51,13 @@ class Figure extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         return $markup->addDirective('figure')
             ->addLiteral('{')
             ->addPressdown($matches[2])
-            ->addLiteral('}(')
-            ->addOption($matches[3])
+            ->addLiteral('}')
+            ->addLiteral('(')
+            ->addPressdown($matches[3])
             ->addLiteral(')#')
             ->addOption($matches[4]);
     }
@@ -86,7 +89,7 @@ class Figure extends BaseDirective
         $this->figures[$matches[4]] = $number;
 
         // this fakes out wkhtmltopdf so that the /Dest is stored within the PDF object stream
-        $anchor = "<a href=\"#figure-$matches[4]\" name=\"figure-$matches[4]\">&nbsp;</a>";
+        $anchor = "<a class=\"hidden\" href=\"#figure-$matches[4]\" name=\"figure-$matches[4]\">&nbsp;</a>";
 
         // set caption
         if (empty($matches[3])) {
@@ -94,14 +97,14 @@ class Figure extends BaseDirective
             $class = ' class="caption-less"';
         } else {
             $matches[3] = preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[3]);
-            $matches[3] = $this->parseMarkdown($matches[3]);
+            $matches[3] = $this->parseMarkdown($matches[3], true);
             $caption = "<figcaption>Figure $number: $matches[3]</figcaption>";
             $class = '';
         }
-        $captionAbove = app()->instructions()->figureCaptionAbove ? "\n$caption" : '';
-        $captionBelow = $captionAbove ? '' : "$caption\n";
+        $captionAbove = app()->instructions()->figureCaptionAbove ? "\n$caption\n" : '';
+        $captionBelow = $captionAbove ? '' : "\n$caption\n";
 
         // we wrap it in a div to prevent Markdown from touching it.  Even though we parsed the Markdown above, it will be done again.
-        return "<div>$captionAbove<figure$class>$anchor$matches[2]</figure>$captionBelow</div>";
+        return "$captionAbove<figure$class>$anchor$matches[2]</figure>$captionBelow";
     }
 }

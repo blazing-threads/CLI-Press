@@ -22,7 +22,7 @@ class PullQuote extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/(@|)pq\{(.+)\}\((left|right|)\s?([a-zA-Z0-9_-]*)\)/U';
+    protected $pattern = '/(@|)pq\{(.+)\}\((left|right|float\?|)\s?([a-zA-Z0-9_-]*\??)\)/U';
 
     /**
      * @var array
@@ -44,11 +44,12 @@ class PullQuote extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         $markup->addDirective('pq')
             ->addLiteral('{')
             ->addPressdown($matches[2])
-            ->addLiteral('}(');
+            ->addLiteral('}')
+            ->addLiteral('(');
         if ($matches[3]) {
             $markup->addOption($matches[3]);
         }
@@ -74,8 +75,8 @@ class PullQuote extends BaseDirective
      */
     protected function process($matches)
     {
-        $content = $this->parseMarkdown($matches[2]);
-        $float = 'pull-quote-' . (!empty($matches[3]) ? $matches[3] : 'left');
+        $content = $this->parseMarkdown($matches[2], true);
+        $float = 'pull-quote-' . (!empty($matches[3]) ? $matches[3] : 'right');
         $quote = "<aside class=\"pull-quote $float\"><span class=\"pull-quote-left-quote\">&ldquo;</span><blockquote>$content</blockquote><span class=\"pull-quote-right-quote\">&rdquo;</span></aside>";
         if (!empty($matches[4])) {
             if (isset($this->pullQuotes[$matches[4]])) {

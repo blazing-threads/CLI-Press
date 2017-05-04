@@ -28,7 +28,7 @@ class EscapedTwigExpression extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         return $markup->addLiteral('{@{')
             ->addOption(' ' . $matches[2] . ' ')
             ->addLiteral('}}');

@@ -1,0 +1,63 @@
+.pull-quote {
+    background: #AEAEAE;
+    border-radius: 35px 0 35px 0;
+    margin: 15px;
+    padding: 0;
+    page-break-inside: avoid;
+    width: 300px;
+}
+
+.pull-quote > blockquote:first-letter {
+    color: #c22026;
+    float: left;
+    font-family: Shrikhand, serif;
+    font-size: 36pt;
+    font-weight: normal;
+    line-height: 36pt;
+    padding-right: 5px;
+    text-transform: uppercase;
+}
+
+.pull-quote-left {
+    float: left;
+}
+
+.pull-quote-right {
+    float: right;
+}
+
+.pull-quote blockquote {
+    border: none;
+    color: #2e2c2b;
+    font-size: 14pt;
+    font-weight: bold;
+    line-height: 17pt;
+    margin: 20px;
+    padding: 25px;
+    {#text-align: center;#}
+}
+
+.pull-quote-left-quote,
+.pull-quote-right-quote {
+    color: #2e2c2b;
+    font-family: Shrikhand, serif;
+    font-size: 75px;
+    line-height: 0;
+    position: relative;
+}
+
+.pull-quote-left-quote {
+    float: left;
+    left: 5px;
+    top: 45px;
+}
+
+.pull-quote-right-quote {
+    float: right;
+    left: -15px;
+    top: -5px;
+}
+
+p ~ aside.pull-quote {
+    margin-top: 0;
+}

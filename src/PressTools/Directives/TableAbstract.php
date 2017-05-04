@@ -41,11 +41,11 @@ class TableAbstract extends BaseDirective
     }
 
     /**
-     * @return ColorCoder
+     * @return SyntaxHighlighter
      */
     protected function abstractDirective()
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         return $markup->addDirective('table')
             ->addLiteral('-')
             ->addOption('cols')

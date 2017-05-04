@@ -22,6 +22,11 @@ use BlazingThreads\CliPress\PressTools\PressdownParser;
 abstract class BaseDirective
 {
     /**
+     * @var bool
+     */
+    protected $neverEscape = false;
+
+    /**
      * @var string
      */
     protected $pattern;
@@ -52,9 +57,9 @@ abstract class BaseDirective
      */
     public function processDirective($matches)
     {
-        if (!empty($matches[1])) {
+        if (!$this->neverEscape && !empty($matches[1])) {
             $whitespace = str_replace('@', '', $matches[1]);
-            return $whitespace . $this->escape($matches); //substr($matches[0], strlen($matches[1]));
+            return $whitespace . $this->escape($matches);
         }
 
         return $this->process($matches);
@@ -65,7 +70,7 @@ abstract class BaseDirective
      * @param bool $stripPTags
      * @return mixed
      */
-    protected function parseMarkdown($markup, $stripPTags = true)
+    protected function parseMarkdown($markup, $stripPTags = false)
     {
         return app()->make(PressdownParser::class)->parseMarkdown($markup, $stripPTags);
     }

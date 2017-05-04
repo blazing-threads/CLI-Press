@@ -15,12 +15,14 @@
 
 namespace BlazingThreads\CliPress\PressTools\Directives;
 
-class EscapedCodeBlock extends BaseDirective
+use BlazingThreads\CliPress\CliPressException;
+
+class Alert extends BaseDirective
 {
     /**
      * @var string
      */
-    protected $pattern = '/^(\s*@)```/m';
+    protected $pattern = '/(@|)alert\{(.+)\}\(([a-z -]+)\)/Um';
 
     /**
      * @param $matches
@@ -29,16 +31,23 @@ class EscapedCodeBlock extends BaseDirective
     protected function escape($matches)
     {
         $markup = new SyntaxHighlighter();
-        return $markup->addLiteral('@```');
+        return $markup->addDirective('alert')
+            ->addLiteral('{')
+            ->addPressdown($matches[2])
+            ->addLiteral('}')
+            ->addLiteral('(')
+            ->addOption($matches[3])
+            ->addLiteral(')');
     }
 
     /**
      * @param $matches
      * @return string
+     * @throws CliPressException
      */
     protected function process($matches)
     {
-        // this should never get called
-        return 'bad juju';
+        $content = $this->parseMarkdown($matches[2]);
+        return "<div class=\"pd-alert-box\"><i class=\"fa fa-$matches[3] fa-4x pd-alert-icon\"></i><div class=\"pd-alert\">$content</div><div class=\"clearfix\"></div></div>";
     }
 }

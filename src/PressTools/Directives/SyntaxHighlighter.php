@@ -15,7 +15,7 @@
 
 namespace BlazingThreads\CliPress\PressTools\Directives;
 
-class ColorCoder
+class SyntaxHighlighter
 {
     /**
      * @var string
@@ -32,7 +32,7 @@ class ColorCoder
 
     /**
      * @param $directive
-     * @return ColorCoder
+     * @return SyntaxHighlighter
      */
     public function addDirective($directive)
     {
@@ -41,7 +41,7 @@ class ColorCoder
 
     /**
      * @param $literal
-     * @return ColorCoder
+     * @return SyntaxHighlighter
      */
     public function addLiteral($literal)
     {
@@ -50,7 +50,7 @@ class ColorCoder
 
     /**
      * @param $option
-     * @return ColorCoder
+     * @return SyntaxHighlighter
      */
     public function addOption($option)
     {
@@ -59,7 +59,7 @@ class ColorCoder
 
     /**
      * @param $text
-     * @return ColorCoder
+     * @return SyntaxHighlighter
      */
     public function addPlainText($text)
     {
@@ -68,7 +68,7 @@ class ColorCoder
 
     /**
      * @param $pressdown
-     * @return ColorCoder
+     * @return SyntaxHighlighter
      */
     public function addPressdown($pressdown)
     {

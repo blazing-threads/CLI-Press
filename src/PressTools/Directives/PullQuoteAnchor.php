@@ -30,7 +30,7 @@ class PullQuoteAnchor extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         return $markup->addDirective('pqa')
             ->addLiteral('{')
             ->addOption($matches[2])

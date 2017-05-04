@@ -21,7 +21,7 @@ class Keywords extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/(@|)(\^+)([^\^\n\r\f]+)\2/';
+    protected $pattern = '/(@*|)(\^+)([^\^\n\r\f]+)\2/';
 
     /**
      * @param $matches
@@ -29,7 +29,10 @@ class Keywords extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        if ($matches[1] == '@@') {
+            return substr($matches[0], 2);
+        }
+        $markup = new SyntaxHighlighter();
         return $markup->addLiteral($matches[2])
             ->addPlainText($matches[3])
             ->addLiteral($matches[2]);

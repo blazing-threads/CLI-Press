@@ -23,6 +23,11 @@ class SimpleTable
     protected $caption;
 
     /**
+     * @var array
+     */
+    protected $columnClasses = [];
+
+    /**
      * @var int
      */
     protected $columnCount;
@@ -90,17 +95,20 @@ class SimpleTable
 
     /**
      * @param $type
+     * @param $classes
      * @param $content
      */
-    protected function addRow($type, $content)
+    protected function addRow($type, $classes, $content)
     {
-        $this->addMarkup("\t\t<tr>\n");
-        $columns = preg_split('/^\s+(\d+)\./m', $content, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
+        $this->addMarkup("\t\t<tr$classes>\n");
+        $columns = preg_split('/^\s+(\d+)(\([a-z -]+\):|:)/m', $content, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
         $lastColumn = 0;
         while(null !== $currentColumn = array_shift($columns)) {
             $columnSpan = (1 === $difference = min($currentColumn, $this->columnCount) - $lastColumn) ? '' : " colspan=\"$difference\"";
+            $with = $difference == 1 && isset($this->columnClasses[$currentColumn]) ? $this->columnClasses[$currentColumn] : '';
+            $classes = $this->getClasses(array_shift($columns), $with);
             $markup = $this->parser->parseMarkdown(trim(array_shift($columns)));
-            $this->addMarkup("\t\t\t<$type$columnSpan>$markup</$type>\n");
+            $this->addMarkup("\t\t\t<$type{$classes}{$columnSpan}>$markup</$type>\n");
             $lastColumn = $currentColumn;
         }
         $this->addMarkup("\t\t</tr>\n");
@@ -119,12 +127,19 @@ class SimpleTable
 
         if (!empty($this->caption)) {
             $caption = $this->parser->parseMarkdown($this->caption, true);
-            $this->addMarkup("\t<caption>\n<a href=\"#table-$this->name\" name=\"table-$this->name\">Table $this->label : $caption</a>\n</caption>\n");
+            $this->addMarkup("\t<caption>\n<a href=\"#table-$this->name\" name=\"table-$this->name\">Table $this->label: $caption</a>\n</caption>\n");
         }
 
-        $rows = preg_split('/^\s+([hrf]):/m', $this->content, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
+        $rows = preg_split('/^\s+([cfhr])(\([a-z -]+\):|:)/m', $this->content, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
         while(null !== $value = array_shift($rows)) {
+            $section = 'tbody';
+            $type = 'td';
             switch ($value) {
+                case 'c':
+                    // this moves us beyond the second delimiter capture group which is unused in column configuration
+                    array_shift($rows);
+                    $this->setColumnClasses(array_shift($rows));
+                    continue 2;
                 case 'f':
                     $section = 'tfoot';
                     $type = 'td';
@@ -133,17 +148,19 @@ class SimpleTable
                     $section = 'thead';
                     $type = 'th';
                     break;
-                case 'r':
-                default:
-                    $section = 'tbody';
-                    $type = 'td';
             }
             $this->startSection($section);
-            $this->addRow($type, array_shift($rows));
+            $this->addRow($type, $this->getClasses(array_shift($rows)), array_shift($rows));
         }
-
         $this->endSection();
         $this->addMarkup('</table>');
+    }
+
+    protected function getClasses($match, $with = '')
+    {
+        return $match == ':'
+            ? ($with ? " class=\"$with\"" : '')
+            : ' class="' . substr($match, 1, -2) . ($with ? " $with" : '"');
     }
 
     /**
@@ -161,6 +178,15 @@ class SimpleTable
     protected function inSection($type)
     {
         return $this->currentSectionType === $type;
+    }
+
+    protected function setColumnClasses($config)
+    {
+        $this->columnClasses = [];
+        $columns = preg_split('/^\s+(\d+):/m', $config, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
+        while ($column = array_shift($columns)) {
+            $this->columnClasses[$column] = trim(array_shift($columns));
+        }
     }
 
     /**

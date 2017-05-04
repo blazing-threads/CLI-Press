@@ -28,7 +28,7 @@ class FigureLink extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         return $markup->addDirective('f')
             ->addLiteral('{')
             ->addPressdown($matches[2])

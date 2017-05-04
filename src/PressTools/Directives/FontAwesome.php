@@ -28,7 +28,7 @@ class FontAwesome extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         return $markup->addLiteral('{')
             ->addDirective('f@')
             ->addOption($matches[2])
@@ -48,6 +48,8 @@ class FontAwesome extends BaseDirective
         foreach ($matches as $class) {
             if (preg_match('/^(lg|[2-5]x)|(rotate-(9|18|27)0)|flip-(horizontal|vertical)/', $class)) {
                 $classes .= ' fa-' . $class;
+            } else {
+                $classes .= " $class";
             }
         }
 

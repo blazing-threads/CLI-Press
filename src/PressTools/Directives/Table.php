@@ -32,7 +32,7 @@ class Table extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/^(@|)table-(\d+)\{(.+)^\}\((.*)\)#([a-zA-Z0-9_a]+)(?=$)/sUm';
+    protected $pattern = '/^(@|)table-(\d+)\{(.+)^\}\((.*)\)#([a-zA-Z0-9_a-]+?)/sUm';
 
     /**
      * @param $table
@@ -49,7 +49,7 @@ class Table extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new ColorCoder();
+        $markup = new SyntaxHighlighter();
         $markup->addLiteral('table');
         return $markup;
     }
@@ -69,8 +69,8 @@ class Table extends BaseDirective
      */
     protected function process($matches)
     {
-        $number = $this->currentTable++;
-        $this->tables[$matches[5]] = $number;
-        return new SimpleTable($matches, $number);
+        $label = empty($matches[4]) ? '' : $this->currentTable++;
+        $this->tables[$matches[5]] = $label;
+        return new SimpleTable($matches, $label);
     }
 }
