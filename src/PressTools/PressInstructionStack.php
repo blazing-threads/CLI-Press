@@ -36,6 +36,7 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $chapterStartsRight
  * @property $chapterTitle
  * @property $coverType
+ * @property $customDirectives
  * @property $extensions
  * @property $filename
  * @property $figureCaptionAbove

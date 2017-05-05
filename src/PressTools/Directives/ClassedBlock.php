@@ -22,7 +22,7 @@ class ClassedBlock extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/(@|)\{@([abcdflopsux]|fc|blockquote|code|div|figure|figcaption|li|ol|pre|span|tag|ul)-([a-zA-Z-\.]*)\s+(.+)\s+\2@\}(\(([a-z -]*)\))??/sUm';
+    protected $pattern = '/(@|)\{@([abcdflopsux]|fc|blockquote|code|div|figure|figcaption|li|ol|pre|span|tag|ul)-([a-zA-Z-\.]*\??)\s+(.+)\s+\2@\}(\(([a-z -]*)\)\???)??/sUm';
 
     /**
      * @param $matches
@@ -43,6 +43,10 @@ class ClassedBlock extends BaseDirective
             $markup->addLiteral('(')
                 ->addOption($matches[6])
                 ->addLiteral(')');
+        }
+
+        if (substr($matches[0], -1) == '?') {
+            $markup->addLiteral('?');
         }
 
         return $markup;

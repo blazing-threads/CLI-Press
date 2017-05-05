@@ -20,7 +20,7 @@ class TableAbstract extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/@table-cols\{content\}\(caption\)#anchor-name/';
+    protected $pattern = '/@table-cols\{content\}\(caption\?\)#anchor-name/';
 
     /**
      * @param $matches
@@ -52,7 +52,7 @@ class TableAbstract extends BaseDirective
             ->addLiteral('{')
             ->addPressdown('content')
             ->addLiteral('}(')
-            ->addPressdown('caption')
+            ->addPressdown('caption?')
             ->addLiteral(')#')
             ->addOption('anchor-name');
     }
