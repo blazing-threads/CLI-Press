@@ -51,6 +51,25 @@ class PressdownParser extends \ParsedownExtra
      * @param $markup
      * @return mixed
      */
+    public static function stripMarkdownPTags($markup)
+    {
+        return preg_replace('/<\/?p>/', '', $markup);
+    }
+
+    /**
+     * @param $markup
+     * @return mixed
+     */
+    public static function changeMarkdownPTagsToBrTags($markup)
+    {
+        $markup = preg_replace('/<\/p>/', '', $markup);
+        return preg_replace('/<p>/', '<br />', $markup);
+    }
+
+    /**
+     * @param $markup
+     * @return mixed
+     */
     public function close($markup)
     {
         $markup = $this->processDirectives('post', $markup);
@@ -76,7 +95,7 @@ class PressdownParser extends \ParsedownExtra
     public function parseMarkdown($markup, $stripPTags = true)
     {
         $markup = parent::parse($markup);
-        return $stripPTags ? $this->stripMarkdownPTags($markup) : $markup;
+        return $stripPTags ? static::stripMarkdownPTags($markup) : $markup;
     }
 
     /**
@@ -110,12 +129,4 @@ class PressdownParser extends \ParsedownExtra
         array_push($this->$type, $directive);
     }
 
-    /**
-     * @param $markup
-     * @return mixed
-     */
-    protected function stripMarkdownPTags($markup)
-    {
-        return preg_replace('/<\/?p>/', '', $markup);
-    }
 }

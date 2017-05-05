@@ -20,7 +20,7 @@ class EscapedCodeBlock extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/^(\s*@)```/m';
+    protected $pattern = '/^((\s*|<p>\s*)@)```/m';
 
     /**
      * @param $matches

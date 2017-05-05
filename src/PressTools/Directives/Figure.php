@@ -34,7 +34,7 @@ class Figure extends BaseDirective
      * ((@)|^\s*)figure\{(.+)(?(2)|^\s*)\}\((.*)\)?#([a-zA-Z0-9_-]+?)
      * @var string
      */
-    protected $pattern = '/(@|)figure\{(.+)\}\((.*)\)?#([a-zA-Z0-9_-]+?)/sUm';
+    protected $pattern = '/(@|)figure\{(.+)\}\(([^\n]+)\)?#([a-zA-Z0-9_-]+?)/sUm';
 
     /**
      * @param $figure
@@ -78,7 +78,7 @@ class Figure extends BaseDirective
      */
     protected function process($matches)
     {
-        $matches[2] = preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[2]);
+//        $matches[2] = preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[2]);
         $matches[2] = $this->parseMarkdown($matches[2]);
 
         // register the anchor name

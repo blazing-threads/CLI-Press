@@ -73,7 +73,8 @@ class Application extends Container
         $this->singleton(PressInstructionStack::class);
         $this->singleton(PullQuote::class);
         $this->singleton(Figure::class);
-        $this->singleton(TableLink::class);
+        $this->singleton(Table::class);
+        $this->singleton(Custom::class);
 
         // tag all commands
         $this->tag(Configure::class, ['command', 'command.configure']);
@@ -88,21 +89,21 @@ class Application extends Container
             $pressdown->registerDirective('pre', new Keywords());
             $pressdown->registerDirective('pre', new FontAwesome());
             $pressdown->registerDirective('pre', new PageBreak());
+            $pressdown->registerDirective('final', new HighlightedComment());
 
             $pressdown->registerDirective('block', new ClassedBlock());
             $pressdown->registerDirective('block', $app->make(PullQuote::class));
             $pressdown->registerDirective('block', new Alert());
-            $pressdown->registerDirective('block', new Table());
+            $pressdown->registerDirective('block', $app->make(Table::class));
             $pressdown->registerDirective('block', $app->make(Figure::class));
-            $pressdown->registerDirective('block', new Custom());
+            $pressdown->registerDirective('block', $app->make(Custom::class));
 
             $pressdown->registerDirective('post', new FigureLink());
             $pressdown->registerDirective('post', new PullQuoteAnchor());
-            $pressdown->registerDirective('post', $app->make(TableLink::class));
+            $pressdown->registerDirective('post', new TableLink());
 
             $pressdown->registerDirective('final', new EscapedCodeBlock());
             $pressdown->registerDirective('final', new EscapedTwigExpression());
-            $pressdown->registerDirective('final', new HighlightedComment());
             $pressdown->registerDirective('final', new TableAbstract());
             $pressdown->registerDirective('final', new PullQuoteFix());
         });

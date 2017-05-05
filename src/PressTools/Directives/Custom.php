@@ -16,14 +16,20 @@
 namespace BlazingThreads\CliPress\PressTools\Directives;
 
 use BlazingThreads\CliPress\CliPressException;
+use BlazingThreads\CliPress\PressTools\PressdownParser;
 use BlazingThreads\CliPress\PressTools\PressInstructionStack;
 
 class Custom extends BaseDirective
 {
     /**
+     * @var array
+     */
+    protected $directives = [];
+
+    /**
      * @var string
      */
-    protected $pattern = '/(@|)custom\{(.+)\}\(([a-z -]+)\)/sUm';
+    protected $pattern = '/(@|)custom(-\d)?\{(.+)\}\(([a-z-]+?)\s*([a-z0-9\? +-]+)?\)(?(2)\2|)/sUm';
 
     /**
      * @param $matches
@@ -32,17 +38,31 @@ class Custom extends BaseDirective
     protected function escape($matches)
     {
         $markup = new SyntaxHighlighter();
-        return $markup->addDirective('custom')
+        $markup->addDirective('custom')
             ->addLiteral('{')
-            ->addPressdown($matches[2])
+            ->addPressdown($matches[3])
             ->addLiteral('}')
             ->addLiteral('(')
-            ->addOption($matches[3])
-            ->addLiteral(')');
+            ->addOption($matches[4]);
+
+        if (!empty($matches[5])) {
+            $markup->addOption(' ' . $matches[5]);
+        }
+
+        return $markup->addLiteral(')');
     }
 
+    /**
+     * @param $name
+     * @return array
+     * @throws CliPressException
+     */
     protected function findCustomDirective($name)
     {
+        if (isset($this->directives[$name])) {
+            return $this->directives[$name];
+        }
+
         $customDirectives = app()->make(PressInstructionStack::class)->customDirectives;
 
         if (empty($customDirectives[$name])) {
@@ -55,7 +75,9 @@ class Custom extends BaseDirective
 
         $tag = $customDirectives[$name]['tag'];
         $classes = empty($customDirectives[$name]['class']) ? '' : " class=\"{$customDirectives[$name]['class']}\"";
-        return [$tag, $classes];
+        $options = empty($customDirectives[$name]['options']) ? [] : explode(' ', @(string) $customDirectives[$name]['options']);
+
+        return $this->directives[$name] = [$tag, $classes, $options];
     }
 
     /**
@@ -65,8 +87,35 @@ class Custom extends BaseDirective
      */
     protected function process($matches)
     {
-        list($tag, $classes) = $this->findCustomDirective($matches[3]);
-        $content = $this->parseMarkdown($matches[2]);
-        return "<$tag$classes>$content</$tag>";
+        list($tag, $classes, $directiveOptions) = $this->findCustomDirective($matches[4]);
+
+        $instanceOptions = empty($matches[5]) ? [] : explode(' ', trim($matches[5]));
+
+        $stripPTags = !empty($directiveOptions) && in_array('-p', $directiveOptions);
+        if ($stripPTags && in_array('+p', $instanceOptions)) {
+            $stripPTags = false;
+        } elseif (!$stripPTags && in_array('-p', $instanceOptions)) {
+            $stripPTags = true;
+        }
+
+        $p2br = !empty($directiveOptions) && in_array('-p2br', $directiveOptions);
+        if ($p2br && in_array('+p2br', $instanceOptions)) {
+            $p2br = false;
+        } elseif (!$p2br && in_array('-p2br', $instanceOptions)) {
+            $p2br = true;
+        }
+
+        if (!in_array('-final', $directiveOptions) && !in_array('-final', $instanceOptions)) {
+            $matches[3] = preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[3]);
+            $matches[3] = $this->parseMarkdown($matches[3], $stripPTags);
+        }
+
+        if ($stripPTags) {
+            $matches[3] = PressdownParser::stripMarkdownPTags($matches[3]);
+        } elseif ($p2br) {
+            $matches[3] = PressdownParser::changeMarkdownPTagsToBrTags($matches[3]);
+        }
+
+        return "<$tag$classes>$matches[3]</$tag>";
     }
 }

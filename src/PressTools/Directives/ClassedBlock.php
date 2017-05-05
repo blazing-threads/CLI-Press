@@ -22,7 +22,7 @@ class ClassedBlock extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/(@|)\{@([abcdflopsux]|fc|blockquote|code|div|figure|figcaption|li|ol|pre|span|tag|ul)-([a-zA-Z-\.]*\??)\s+(.+)\s+\2@\}(\(([a-z -]*)\)\???)??/sUm';
+    protected $pattern = '/(@|)\{@([abcdflopsux]|fc|blockquote|code|div|figure|figcaption|li|ol|pre|span|tag|ul)-([a-zA-Z\.\?-]*)(\s.+\s)\2@\}(\(([a-z -]*)\)\???)??/sUm';
 
     /**
      * @param $matches
@@ -30,12 +30,21 @@ class ClassedBlock extends BaseDirective
      */
     protected function escape($matches)
     {
-        $markup = new SyntaxHighlighter();
+        $noWrap = false;
+
+        if (!empty($matches[6])) {
+            $matches[6] = str_replace('-nw', '', $matches[6], $noWrap);
+        }
+
+        $matches[4] = $this->parseContents($matches[4], empty($matches[6]) ? '' : $matches[6], true);
+
+        $markup = new SyntaxHighlighter($noWrap);
         $markup->addLiteral('{@')
             ->addDirective($matches[2])
             ->addLiteral('-')
             ->addOption($matches[3])
-            ->addPressdown(' ' . $matches[4] . ' ')
+            // '<pre class="prettyprintplain" style="margin: 0; padding: 0; border: 0">' . $matches[4] . '</pre>'
+            ->addPressdown($matches[4])
             ->addDirective($matches[2])
             ->addLiteral('@}');
 
@@ -53,14 +62,38 @@ class ClassedBlock extends BaseDirective
     }
 
     /**
+     * @param $contents
+     * @param $options
+     * @param bool $skipMarkdown
+     * @return string
+     */
+    protected function parseContents($contents, $options, $skipMarkdown = false)
+    {
+        $options = empty($options) ? [] : explode(' ', $options);
+
+        if (in_array('-final', $options)) {
+            if (in_array('-p', $options)) {
+                PressdownParser::stripMarkdownPTags($contents);
+            }
+            return "<div>$contents</div>";
+        }
+
+        $contents = app()->make(PressdownParser::class)->processDirectives('block', $contents);
+
+        if (!in_array('-md', $options) && !$skipMarkdown) {
+            $contents = $this->parseMarkdown($contents, in_array('-p', $options) || strpos($contents, "\n") === false);
+        }
+
+        return $contents;
+    }
+
+    /**
      * @param $matches
      * @return string
      */
     protected function process($matches)
     {
-        $stripPTags = !empty($matches[6]) && $matches[6] == '-p';
-        $matches[4] = $this->parseMarkdown($matches[4], $stripPTags);
-        $matches[4] = app()->make(PressdownParser::class)->processDirectives('block', $matches[4]); //preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[4]);
+        $matches[4] = $this->parseContents($matches[4], empty($matches[6]) ? '' : $matches[6]);
         switch ($matches[2]) {
             case 'a':
                 $tag = 'a';

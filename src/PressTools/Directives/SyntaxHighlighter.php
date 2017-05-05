@@ -23,11 +23,17 @@ class SyntaxHighlighter
     protected $markup = '';
 
     /**
-     * ColorCoder constructor.
+     * @var bool
      */
-    public function __construct()
+    protected $noWrap;
+
+    /**
+     * ColorCoder constructor.
+     * @param bool $noWrap
+     */
+    public function __construct($noWrap = false)
     {
-        $this->addMarkup('<code class="pressdown">');
+        $this->noWrap = $noWrap;
     }
 
     /**
@@ -72,6 +78,8 @@ class SyntaxHighlighter
      */
     public function addPressdown($pressdown)
     {
+        // "<span class=\"pd-pressdown\">$pressdown</span>"
+        // "</code>$pressdown<code class=\"pressdown\">"
         return $this->addMarkup("<span class=\"pd-pressdown\">$pressdown</span>");
     }
 
@@ -80,7 +88,8 @@ class SyntaxHighlighter
      */
     public function __toString()
     {
-        return $this->markup .= '</code>';
+        $wrap = $this->noWrap ? ' no-wrap' : '';
+        return "<code class=\"pressdown$wrap\">$this->markup</code>";
     }
 
     /**
