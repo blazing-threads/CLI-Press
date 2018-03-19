@@ -17,7 +17,6 @@ namespace BlazingThreads\CliPress\PressTools\Directives;
 
 use BlazingThreads\CliPress\CliPressException;
 use BlazingThreads\CliPress\PressTools\PressdownParser;
-use BlazingThreads\CliPress\PressTools\PressInstructionStack;
 
 class Custom extends BaseDirective
 {
@@ -29,7 +28,7 @@ class Custom extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/(@|)custom(-\d)?\{(.+)\}\(([a-z-]+?)\s*([a-z0-9\? +-]+)?\)(?(2)\2|)/sUm';
+    protected $pattern = '/(@|)custom(-\d|-level\?)?\{(.+)\}\(([a-z-]+?) *([a-zA-Z0-9\? +-]+)?\)(?(2)\2|)/sUm';
 
     /**
      * @param $matches
@@ -38,8 +37,13 @@ class Custom extends BaseDirective
     protected function escape($matches)
     {
         $markup = new SyntaxHighlighter();
-        $markup->addDirective('custom')
-            ->addLiteral('{')
+        $markup->addDirective('custom');
+
+        if ($matches[2]) {
+            $markup->addLiteral($matches[2]);
+        }
+
+        $markup->addLiteral('{')
             ->addPressdown($matches[3])
             ->addLiteral('}')
             ->addLiteral('(')
@@ -49,7 +53,13 @@ class Custom extends BaseDirective
             $markup->addOption(' ' . $matches[5]);
         }
 
-        return $markup->addLiteral(')');
+        $markup->addLiteral(')');
+
+        if (!empty($matches[2])) {
+            $markup->addLiteral($matches[2]);
+        }
+
+        return $markup;
     }
 
     /**
@@ -63,7 +73,7 @@ class Custom extends BaseDirective
             return $this->directives[$name];
         }
 
-        $customDirectives = app()->make(PressInstructionStack::class)->customDirectives;
+        $customDirectives = app()->instructions()->customDirectives;
 
         if (empty($customDirectives[$name])) {
             throw new CliPressException("Cannot find custom directive: " . @(string) $name);

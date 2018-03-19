@@ -107,7 +107,8 @@ class SimpleTable
             $columnSpan = (1 === $difference = min($currentColumn, $this->columnCount) - $lastColumn) ? '' : " colspan=\"$difference\"";
             $with = $difference == 1 && isset($this->columnClasses[$currentColumn]) ? $this->columnClasses[$currentColumn] : '';
             $classes = $this->getClasses(array_shift($columns), $with);
-            $markup = $this->parser->parseMarkdown(trim(array_shift($columns)));
+            $col = trim(array_shift($columns));
+            $markup = $this->parser->parseMarkdown($col);
             $this->addMarkup("\t\t\t<$type{$classes}{$columnSpan}>$markup</$type>\n");
             $lastColumn = $currentColumn;
         }
@@ -125,10 +126,12 @@ class SimpleTable
 
         $this->addMarkup("<table class=\"table table-striped\">\n");
 
-        if (!empty($this->caption)) {
-            $caption = $this->parser->parseMarkdown($this->caption, true);
-            $this->addMarkup("\t<caption>\n<a href=\"#table-$this->name\" name=\"table-$this->name\">Table $this->label: $caption</a>\n</caption>\n");
-        }
+        $caption = empty($this->caption) ? '&nbsp;' : ': ' . $this->parser->parseMarkdown($this->caption, true);
+        $label = empty($this->label) ? '' : "Table $this->label";
+
+        // If there's no caption, we still add the tag and the anchor so any links to the table in the document will still work.
+        $flat = empty($this->label) && empty($this->caption) ? ' class="flat"' : '';
+        $this->addMarkup("\t<caption$flat>\n<a href=\"#table-$this->name\" name=\"table-$this->name\">$label$caption</a>\n</caption>\n");
 
         $rows = preg_split('/^\s+([cfhr])(\([a-z -]+\):|:)/m', $this->content, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
         while(null !== $value = array_shift($rows)) {

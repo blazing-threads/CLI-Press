@@ -20,7 +20,7 @@ class TableAbstract extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/@table-cols\{content\}\(caption\?\)#anchor-name/';
+    protected $pattern = '/()@table-cols\{(\s*content\s*)\}\(caption\?\)#anchor-name/';
 
     /**
      * @param $matches
@@ -28,7 +28,7 @@ class TableAbstract extends BaseDirective
      */
     protected function escape($matches)
     {
-        return $this->abstractDirective();
+        return $this->abstractDirective($matches);
     }
 
     /**
@@ -37,20 +37,21 @@ class TableAbstract extends BaseDirective
      */
     protected function process($matches)
     {
-        return $this->abstractDirective();
+        return $this->abstractDirective($matches);
     }
 
     /**
+     * @param $matches
      * @return SyntaxHighlighter
      */
-    protected function abstractDirective()
+    protected function abstractDirective($matches)
     {
         $markup = new SyntaxHighlighter();
         return $markup->addDirective('table')
             ->addLiteral('-')
             ->addOption('cols')
             ->addLiteral('{')
-            ->addPressdown('content')
+            ->addPressdown($matches[2])
             ->addLiteral('}(')
             ->addPressdown('caption?')
             ->addLiteral(')#')

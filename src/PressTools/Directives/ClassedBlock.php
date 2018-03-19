@@ -43,7 +43,6 @@ class ClassedBlock extends BaseDirective
             ->addDirective($matches[2])
             ->addLiteral('-')
             ->addOption($matches[3])
-            // '<pre class="prettyprintplain" style="margin: 0; padding: 0; border: 0">' . $matches[4] . '</pre>'
             ->addPressdown($matches[4])
             ->addDirective($matches[2])
             ->addLiteral('@}');
@@ -78,6 +77,7 @@ class ClassedBlock extends BaseDirective
             return "<div>$contents</div>";
         }
 
+        // look for nested block directives
         $contents = app()->make(PressdownParser::class)->processDirectives('block', $contents);
 
         if (!in_array('-md', $options) && !$skipMarkdown) {

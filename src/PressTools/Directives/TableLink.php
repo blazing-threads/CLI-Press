@@ -47,8 +47,12 @@ class TableLink extends BaseDirective
             return '';
         }
 
-        $text = empty($matches[2]) ? '' : ": $matches[2]";
+        if (!empty($matches[2])) {
+            $caption = $matches[2];
+        } else {
+            $caption = empty($table[0]) ? 'Table' : "Table $table[0]: $table[1]";
+        }
 
-        return "<a href=\"curator#table-$matches[3]\">Table $table$text</a>";
+        return "<a href=\"curator#table-$matches[3]\">$caption</a>";
     }
 }

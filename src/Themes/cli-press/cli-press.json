@@ -13,6 +13,7 @@
     "chapter-starts-right": false,
     "chapter-title": "",
     "cover-type": "default",
+    "custom-assets" : null,
     "custom-directives": {},
     "extensions": [
         "html",

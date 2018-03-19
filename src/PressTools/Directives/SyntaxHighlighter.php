@@ -78,8 +78,6 @@ class SyntaxHighlighter
      */
     public function addPressdown($pressdown)
     {
-        // "<span class=\"pd-pressdown\">$pressdown</span>"
-        // "</code>$pressdown<code class=\"pressdown\">"
         return $this->addMarkup("<span class=\"pd-pressdown\">$pressdown</span>");
     }
 

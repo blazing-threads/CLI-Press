@@ -34,7 +34,7 @@ class Figure extends BaseDirective
      * ((@)|^\s*)figure\{(.+)(?(2)|^\s*)\}\((.*)\)?#([a-zA-Z0-9_-]+?)
      * @var string
      */
-    protected $pattern = '/(@|)figure\{(.+)\}\(([^\n]+)\)?#([a-zA-Z0-9_-]+?)/sUm';
+    protected $pattern = '/(@|)figure\{(.+)\}\(([^\n]*?)\)#([a-zA-Z0-9_-]+?)/sUm';
 
     /**
      * @param $figure
@@ -78,18 +78,15 @@ class Figure extends BaseDirective
      */
     protected function process($matches)
     {
-//        $matches[2] = preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[2]);
         $matches[2] = $this->parseMarkdown($matches[2]);
 
         // register the anchor name
         if (key_exists($matches[4], $this->figures)) {
             throw new CliPressException("The Figure Directive must use unique figure names.  The name '$matches[4]' is already defined.");
         }
-        $number = $this->currentFigure++;
-        $this->figures[$matches[4]] = $number;
 
-        // this fakes out wkhtmltopdf so that the /Dest is stored within the PDF object stream
-        $anchor = "<a class=\"hidden\" href=\"#figure-$matches[4]\" name=\"figure-$matches[4]\">&nbsp;</a>";
+        $label = empty($matches[3]) ? '' : $this->currentFigure++;
+        $this->figures[$matches[4]] = [$label, $matches[3]];
 
         // set caption
         if (empty($matches[3])) {
@@ -98,13 +95,15 @@ class Figure extends BaseDirective
         } else {
             $matches[3] = preg_replace_callback($this->pattern, [$this, 'processDirective'], $matches[3]);
             $matches[3] = $this->parseMarkdown($matches[3], true);
-            $caption = "<figcaption>Figure $number: $matches[3]</figcaption>";
+            $caption = "<figcaption>Figure $label: $matches[3]</figcaption>";
             $class = '';
         }
         $captionAbove = app()->instructions()->figureCaptionAbove ? "\n$caption\n" : '';
         $captionBelow = $captionAbove ? '' : "\n$caption\n";
 
-        // we wrap it in a div to prevent Markdown from touching it.  Even though we parsed the Markdown above, it will be done again.
+        // this fakes out wkhtmltopdf so that the /Dest is stored within the PDF object stream
+        $anchor = "<a class=\"flat\" href=\"#figure-$matches[4]\" name=\"figure-$matches[4]\"></a>";
+
         return "$captionAbove<figure$class>$anchor$matches[2]</figure>$captionBelow";
     }
 }

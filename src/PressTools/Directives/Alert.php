@@ -22,7 +22,7 @@ class Alert extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/(@|)alert\{(.+)\}\(([a-z -]+)\)/Um';
+    protected $pattern = '/(@|)alert\{(.+)\}\(([a-z ?-]+)\)/U';
 
     /**
      * @param $matches

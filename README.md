@@ -14,6 +14,12 @@ composer require --global blazing-threads/cli-press
 
 This will install the `cli-press` script as a global requirement and add it to composer's *bin* folder.  Be sure this *bin* folder (usually found in `~/.composer/vendor/bin`) is in your `PATH` environment variable for easiest use.
 
+After installation, you can configure *CLI Press* with the below command.  This configuration lets the press know where your personal and system themes are stored.
+
+```
+cli-press configure
+```
+
 # Usage
 
 The simplest usage is just to invoke *CLI Press* in a directory with document files using the `generate` command.  This will apply the default theme with the built-in *CLI Press* templates and styling.
@@ -22,7 +28,7 @@ The simplest usage is just to invoke *CLI Press* in a directory with document fi
 cli-press generate
 ```
 
-*CLI Press* will recursively search for all files with parseable extensions, including **.md**, **.html**, and **.pd** and generate a PDF.  All files are globbed together in file-system sort order.  You can name them in such a way that they will be processed in the order you intend, ~~or you can use an interactive *CLI Press* command to layout your final document~~ (not yet implemented).
+*CLI Press* will recursively search for all files with parseable extensions, including **.md**, **.html**, and **.pd** and generate a PDF.  All files are globbed together in file-system sort order.  You can name them in such a way that they will be processed in the order you intend.
  
 Sub-directories become chapters or sections of the final document, with subsequently nested sub-directories becoming sub-chapters or sub-sections.  Each directory (and thus each chapter) can have it's own styling.
   
@@ -32,7 +38,7 @@ Layout and styling are built using a combination of press instructions and templ
 
 # Themes
 
-A theme defines press instructions to handle styling and templates to handle layouts.  There is a default theme shipped with *CLI Press* but you can also create custom themes.  You can configure it to look in two theme directories, a personal one and a system one.  Then you can share community themes as well as have personal themes.  Templates and press instructions are resolved in order so personal themes can override system themes which will override the default theme.  Additionally, press instructions can be placed in any directory to override all other settings.
+A theme defines press instructions to handle styling and templates to handle layouts.  There is a default theme shipped with *CLI Press* but you can also create custom themes.  You can configure it to look in two theme directories, a personal one and a system one.  Then you can share community themes as well as have personal themes.  Templates and press instructions are resolved in order so personal themes can override system themes which will override the default theme.  Additionally, press instructions can be placed in any directory to override all other settings.  Finally, you can also define instance themes that are included with the documentation files.  These instance themes can be full-blown themes in their own right, or be used to override personal, system, or base themes.
 
 # Presets
 
@@ -42,6 +48,30 @@ With presets you can define a set of press instructions to give to *CLI Press*. 
  
 Think of *Pressdown* as a combination of Markdown syntax and Bootstrap styling combined into a single interface.  It allows you to put the powerful, but verbose, syntax of a consistent and optimized style like Bootstrap into the simple, yet limited, syntax of a markup-light system like Markdown.  And it's been designed specifically for creating documentation, not HTML meant to be displayed in a browser.  In short, *Pressdown* is the right tool for the job.
 
+# Cover Pages
+
+If there is a *cover.md* file in a directory, `cli-press` will use it's contents to generate a cover page for the chapter or the whole document if it is in the root directory.
+
 # The Nitty Gritty
 
-Coming soon: details on themes, press instructions, presets, and more.
+Coming soon: details on themes, press instructions, presets, and more.  For now you can check out this [Intro to Pressdown](./intro-to-pressdown.pdf) created with, what else?, *CLI Press*.
+
+# Bonus
+
+Do you like Font Awesome?  If so, good news!  You can use some shorthand to put your favorite icons right in your documentation.  Here are some examples:
+
+```
+This: {f@chevron-left}
+
+Becomes: <i class="fa fa-chevron-left"></i>
+
+This: {f@search 4x}
+
+Becomes: <i class="fa fa-search fa-4x"></i>
+
+This: {f@shield rotate-270 lg}
+
+Becomes: <i class="fa fa-shield fa-rotate-270 fa-lg"></i>
+```
+
+I think you get the picture.  Size, rotation, and flipping are the only supported class transformations.  Currently, if `cli-press` detects any Font Awesome patterns, it will automatically include a CDN of the Font Awesome CSS file for version 4.7, otherwise you will need to do that yourself.

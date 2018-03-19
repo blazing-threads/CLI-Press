@@ -44,11 +44,16 @@ class FigureLink extends BaseDirective
     protected function process($matches)
     {
         if (! $figure = app()->make(Figure::class)->getFigure($matches[3])) {
+            var_dump($matches);
             return '';
         }
 
-        $text = empty($matches[2]) ? '' : ": $matches[2]";
+        if (!empty($matches[2])) {
+            $caption = $matches[2];
+        } else {
+            $caption = empty($figure[0]) ? 'Figure' : "Figure $figure[0]: $figure[1]";
+        }
 
-        return "<a href=\"curator#figure-$matches[3]\">Figure $figure$text</a>";
+        return "<a href=\"curator#figure-$matches[3]\">$caption</a>";
     }
 }

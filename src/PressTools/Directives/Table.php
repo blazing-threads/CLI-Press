@@ -15,6 +15,7 @@
 
 namespace BlazingThreads\CliPress\PressTools\Directives;
 
+use BlazingThreads\CliPress\CliPressException;
 use BlazingThreads\CliPress\PressTools\SimpleTable;
 
 class Table extends BaseDirective
@@ -32,7 +33,7 @@ class Table extends BaseDirective
     /**
      * @var string
      */
-    protected $pattern = '/^(@|)table-(\d+)\{(.+)^\}\((.*)\)#([a-zA-Z0-9_a-]+?)/sUm';
+    protected $pattern = '/^(@|)table-(\d+)\{(.+)^\}\(([^\n]*?)\)#([a-zA-Z0-9_a-]+?)/sUm';
 
     /**
      * @param $table
@@ -66,11 +67,16 @@ class Table extends BaseDirective
     /**
      * @param $matches
      * @return string
+     * @throws CliPressException
      */
     protected function process($matches)
     {
+        if (isset($this->tables[$matches[5]])) {
+            throw new CliPressException("The Table Directive must use unique table names. The name '$matches[5]' is already defined.'");
+        }
+
         $label = empty($matches[4]) ? '' : $this->currentTable++;
-        $this->tables[$matches[5]] = $label;
+        $this->tables[$matches[5]] = [$label, $matches[4]];
         return new SimpleTable($matches, $label);
     }
 }
