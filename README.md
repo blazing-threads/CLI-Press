@@ -50,7 +50,17 @@ Think of *Pressdown* as a combination of Markdown syntax and Bootstrap styling c
 
 # Cover Pages
 
-If there is a *cover.md* file in a directory, `cli-press` will use it's contents to generate a cover page for the chapter or the whole document if it is in the root directory.
+If there is a *cover.md* file in a directory, `cli-press` will use it's contents to generate a cover page for the chapter or the whole document if it is in the root directory.  *CLI Press* also comes with a simple cover page default that can be used, one for the document cover and one for the chapter cover.
+
+# Assets
+
+You can include assets like images, fonts, etc. in your theme's CSS and layout files by using `file://` links to them.  Use the press instruction `custom-assets` to set the path to a directory in your project where the assets are located.  Then, in your theme files, use the Twig expression to specify the full path to the asset like this:
+
+```
+img.castle {
+    content: url(file://{{ customAssets }}/images/castle.png);
+}
+```
 
 # The Nitty Gritty
 
