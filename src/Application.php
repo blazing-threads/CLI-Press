@@ -31,6 +31,7 @@ use BlazingThreads\CliPress\PressTools\Directives\EscapedTwigExpression;
 use BlazingThreads\CliPress\PressTools\Directives\Figure;
 use BlazingThreads\CliPress\PressTools\Directives\FigureLink;
 use BlazingThreads\CliPress\PressTools\Directives\FontAwesome;
+use BlazingThreads\CliPress\PressTools\Directives\HeaderLink;
 use BlazingThreads\CliPress\PressTools\Directives\HighlightedComment;
 use BlazingThreads\CliPress\PressTools\Directives\Keywords;
 use BlazingThreads\CliPress\PressTools\Directives\PageBreak;
@@ -69,6 +70,7 @@ class Application extends Container
         $this->singleton(TemplateManager::class);
         $this->singleton(ThemeManager::class);
         $this->singleton(LeafManager::class);
+        $this->singleton(PressConsole::class);
         $this->singleton(Commander::class);
         $this->singleton(PressInstructionStack::class);
         $this->singleton(PullQuote::class);
@@ -89,6 +91,7 @@ class Application extends Container
             $pressdown->registerDirective('pre', new Keywords());
             $pressdown->registerDirective('pre', new FontAwesome());
             $pressdown->registerDirective('pre', new PageBreak());
+            $pressdown->registerDirective('pre', new HeaderLink());
             $pressdown->registerDirective('final', new HighlightedComment());
 
             $pressdown->registerDirective('block', new ClassedBlock());
