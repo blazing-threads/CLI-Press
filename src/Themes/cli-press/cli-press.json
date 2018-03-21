@@ -57,6 +57,7 @@
     "logo-root-cover-footer": null,
     "logo-root-cover-header": null,
     "logo-header": null,
+    "page-size" : "Letter",
     "presets" : [],
     "press-variables" : [],
     "press-time": false,

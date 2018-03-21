@@ -70,6 +70,7 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $logoRootCoverFooter
  * @property $logoRootCoverHeader
  * @property $logoHeader
+ * @property $pageSize
  * @property $presets
  * @property $pressVariables
  * @property $pressTime
@@ -163,7 +164,7 @@ class PressInstructionStack
         }
 
         if (!empty($this->instructions['custom-assets']) && is_dir($this->pressDirectory . DIRECTORY_SEPARATOR . $this->instructions['custom-assets'])) {
-            $variables['__customAssetPath'] = $this->pressDirectory . DIRECTORY_SEPARATOR . $this->instructions['custom-assets'];
+            $this->instructions['press-variables']['__customAssetPath'] = $this->pressDirectory . DIRECTORY_SEPARATOR . $this->instructions['custom-assets'];
         }
 
         return array_merge($variables, $this->instructions['press-variables'], ['__assetPath' => app()->path('assets')]);

@@ -58,7 +58,7 @@ You can include assets like images, fonts, etc. in your theme's CSS and layout f
 
 ```
 img.castle {
-    content: url(file://{{ customAssets }}/images/castle.png);
+    content: url(file://{{ __customAssetPath }}/images/castle.png);
 }
 ```
 

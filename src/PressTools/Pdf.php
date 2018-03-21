@@ -23,7 +23,7 @@ class Pdf extends BasePdf
     public function __construct($options = null)
     {
         parent::__construct($options);
-        $this->setOptions(['cache-dir' => $this->getCacheDir()]);
+        $this->setOptions(['cache-dir' => $this->getCacheDir(), 'page-size' => app()->make(PressInstructionStack::class)->pageSize]);
     }
 
     protected function getCacheDir()
