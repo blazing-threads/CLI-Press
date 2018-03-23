@@ -237,7 +237,7 @@ class PressInstructionStack
         if (key_exists($property, $this->instructions)) {
             $this->instructions[$property] = $value;
         } else {
-            var_dump("$property does not exist");
+            app()->make(PressConsole::class)->writeLn("<warn>$property does not exist</warn>");
         }
     }
 
