@@ -91,7 +91,7 @@ class Application extends Container
             $pressdown->registerDirective('pre', new Keywords());
             $pressdown->registerDirective('pre', new FontAwesome());
             $pressdown->registerDirective('pre', new PageBreak());
-            $pressdown->registerDirective('pre', new HeaderLink());
+            $pressdown->registerDirective('pre', new HeaderLink(app()->make(PressInstructionStack::class)));
             $pressdown->registerDirective('final', new HighlightedComment());
 
             $pressdown->registerDirective('block', new ClassedBlock());

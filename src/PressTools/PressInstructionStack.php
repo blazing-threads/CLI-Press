@@ -74,6 +74,7 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $presets
  * @property $pressVariables
  * @property $pressTime
+ * @property $sectionNumbering
  * @property $simpleRootCover
  * @property $theme
  * @property $title
