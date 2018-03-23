@@ -46,6 +46,11 @@ class PressManager
     protected $ignored;
 
     /**
+     * @var int
+     */
+    protected $initialPageOffset = 0;
+
+    /**
      * Current press directory configuration
      * @var PressInstructionStack
      */
@@ -140,7 +145,23 @@ class PressManager
         }
 
         if ($this->instructions->bookToc) {
-            $this->addTableOfContents();
+            $tocLength = $this->addTableOfContents();
+
+            // We don't know how long the ToC will be until after we create the document,
+            // so we "guess" a length.  This "guess" can be specified with a press instruction,
+            // "toc-length".  If we are wrong, we have to adjust and do it all again.
+            if ($tocLength != $this->instructions->tocLength) {
+                $this->console->verbose("<comment>Restarting because Table of Contents length ($tocLength) not as expected ({$this->instructions->tocLength}).</comment>");
+                $this->leafManager->restart();
+
+                $this->currentPageOffset = $this->initialPageOffset + ($tocLength - $this->instructions->tocLength);
+
+                array_map('unlink', glob($this->workingRootPath . DIRECTORY_SEPARATOR . '*.xml'));
+
+                $this->processDocumentList();
+
+                $this->addTableOfContents();
+            }
         }
 
         if ($this->instructions->hasRootCover) {
@@ -211,6 +232,7 @@ class PressManager
     }
 
     /**
+     * @return int
      * @throws CliPressException
      */
     protected function addTableOfContents()
@@ -259,8 +281,14 @@ class PressManager
         }
 
         $this->prependFile($this->getWorkingFilePath('cli-press_toc.pdf'));
+
+        return $this->leafManager->getPageCount($this->getWorkingFilePath('cli-press_toc.pdf'));
     }
 
+    /**
+     * @param $section
+     * @throws CliPressException
+     */
     protected function closeDocumentSection($section)
     {
         $sectionPath = $this->getWorkingFilePath("cli-press_$section");
@@ -567,6 +595,8 @@ class PressManager
         }
 
         if ($this->isRootDocument()) {
+            $this->currentPageOffset = $this->instructions->tocLength - 1;
+
             if ($this->instructions->simpleRootCover || file_exists('cover.md')) {
                 $this->instructions->hasRootCover = true;
                 // add one for the cover
@@ -577,6 +607,8 @@ class PressManager
                 // add one for the ToC, two if we need to start on the right side (but only if there's a cover)
                 $this->currentPageOffset +=  !$this->instructions->chapterStartsRight || !$this->instructions->hasRootCover ? 1 : 2;
             }
+
+            $this->initialPageOffset = $this->currentPageOffset;
         }
 
         $this->console->veryVerbose(['Configuration for ' . $this->pressDirectory, $this->instructions]);
@@ -592,6 +624,9 @@ class PressManager
         $this->console->debug(['Ignoring:', json_encode($this->ignored, JSON_PRETTY_PRINT)]);
     }
 
+    /**
+     * @param $file
+     */
     protected function setPageOffset($file)
     {
         $this->currentPageOffset += $this->leafManager->getPageCount($file);

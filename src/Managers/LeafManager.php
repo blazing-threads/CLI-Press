@@ -63,4 +63,14 @@ class LeafManager
     {
        $this->curator->prependFile($file);
     }
+
+    /**
+     *
+     */
+    public function restart()
+    {
+        unset($this->curator);
+
+        $this->curator = new Curator();
+    }
 }

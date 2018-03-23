@@ -77,6 +77,7 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $simpleRootCover
  * @property $theme
  * @property $title
+ * @property $tocLength
  * @property $useChapterCovers
  */
 class PressInstructionStack
