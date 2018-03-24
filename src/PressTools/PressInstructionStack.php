@@ -190,6 +190,11 @@ class PressInstructionStack
         $this->stack[] = $this->instructions;
         $this->pressDirectory = $pressDirectory;
 
+        $theme = key_exists('theme', $instructions) ? $instructions['theme'] : $this->instructions['theme'];
+        foreach ($this->themeManager->getAllThemeFilePaths("$theme/cli-press.json") as $overlay) {
+            $this->instructions = $this->merge($this->instructions, jsonOrEmptyArray($this->themeManager->getFileByPath($overlay)));
+        }
+
         $this->instructions = $this->merge($this->instructions, $this->cleanInstructions($instructions));
 
         if (empty($this->instructions['filename'])) {
@@ -286,22 +291,13 @@ class PressInstructionStack
     {
         $result = [];
 
-        $themeDefaults = !key_exists('theme', $overlay)
-            ? []
-            : $this->cleanInstructions($this->themeManager->getThemeDefaults($overlay['theme']));
-
         $overlayPreset = !key_exists('presets', $overlay) ? [] : $this->getPresets($overlay['presets'], key_exists('theme', $overlay) ? $overlay['theme'] : $base['theme']);
-        $themePreset = !key_exists('presets', $themeDefaults) ? [] : $this->getPresets($themeDefaults['presets'], key_exists('theme', $overlay) ? $overlay['theme'] : $base['theme']);
         $basePreset = !key_exists('presets', $base) ? [] : $this->getPresets($base['presets'], $base['theme']);
 
         if (key_exists('ignore', $overlay)) {
             $result['ignore'] = $overlay['ignore'];
         } elseif (key_exists('ignore', $overlayPreset)) {
             $result['ignore'] = $overlayPreset['ignore'];
-        } elseif (key_exists('ignore', $themeDefaults)) {
-            $result['ignore'] = $themeDefaults['ignore'];
-        } elseif (key_exists('ignore', $themePreset)) {
-            $result['ignore'] = $themePreset['ignore'];
         } elseif (key_exists('ignore', $base)) {
             $result['ignore'] = $base['ignore'];
         } elseif (key_exists('ignore', $basePreset)) {
@@ -310,27 +306,24 @@ class PressInstructionStack
             $result['ignore'] = [];
         }
 
-        unset($base['ignore'], $basePreset['ignore'], $overlay['ignore'], $overlayPreset['ignore'], $themeDefaults['ignore'], $themePreset['ignore']);
+        unset($base['ignore'], $basePreset['ignore'], $overlay['ignore'], $overlayPreset['ignore']);
 
         $result['press-variables'] = array_merge(
             key_exists('press-variables', $basePreset) ? $basePreset['press-variables'] : [],
             key_exists('press-variables', $base) ? $base['press-variables'] : [],
-            key_exists('press-variables', $themePreset) ? $themePreset['press-variables'] : [],
-            key_exists('press-variables', $themeDefaults) ? $themeDefaults['press-variables'] : [],
             key_exists('press-variables', $overlayPreset) ? $overlayPreset['press-variables'] : [],
             key_exists('press-variables', $overlay) ? $overlay['press-variables'] : []
         );
 
-        unset($base['press-variables'], $basePreset['press-variables'], $overlay['press-variables'], $overlayPreset['press-variables'], $themeDefaults['press-variables'], $themePreset['press-variables']);
+        unset($base['press-variables'], $basePreset['press-variables'], $overlay['press-variables'], $overlayPreset['press-variables']);
 
         if (!key_exists('chapter-title', $overlay) && !key_exists('chapter-title', $overlayPreset)
-            && !key_exists('chapter-title', $themeDefaults) && !key_exists('chapter-title', $themePreset)
             && !key_exists('chapter-title', $basePreset)
         ) {
             $overlay['chapter-title'] = basename($this->pressDirectory);
         }
 
-        return array_merge($result, $basePreset, $base, $themePreset, $themeDefaults, $overlayPreset, $overlay);
+        return array_merge($result, $basePreset, $base, $overlayPreset, $overlay);
     }
 
     /**

@@ -27,6 +27,11 @@ class TemplateManager
     protected $loader;
 
     /**
+     * @var array
+     */
+    protected $namespaces = ['document', 'personal', 'system'];
+
+    /**
      * @var Twig_Loader_Array
      */
     protected $stringLoader;
@@ -44,14 +49,14 @@ class TemplateManager
     public function __construct()
     {
         $this->loader = new Twig_Loader_Filesystem();
-        // register themes in the order of priority: personal, system, built-in
+        // register themes in the order of priority: document, personal, system, built-in
+        $this->loadDocumentThemes();
         foreach (['personal', 'system'] as $key) {
             if ($path = app()->config()->get("themes.$key")) {
-                $this->loader->addPath($path);
+                $this->loader->addPath($path, $key);
             }
         }
-        $this->loadDocumentThemes();
-        $this->loader->addPath(app()->path('themes.built-in'));
+        $this->loader->addPath(app()->path('themes.built-in'), 'built-in');
 
         $this->twig = new Twig_Environment($this->loader, [
             'cache' => false,
@@ -68,12 +73,83 @@ class TemplateManager
 
     /**
      * @param $template
+     * @return array|string
+     */
+    public function getAllExistingPaths($template)
+    {
+        $paths = [];
+
+        foreach (array_reverse($this->namespaces) as $namespace) {
+            if ($this->loader->exists($path = "@$namespace/$template")) {
+                $paths[] = $path;
+            }
+        }
+
+        return $paths;
+    }
+
+    /**
+     * @param $template
      * @param array $variables
      * @return string
      */
     public function render($template, $variables = [])
     {
         return $this->twig->render($template, $variables);
+    }
+
+    /**
+     * @param $template
+     * @param array $variables
+     * @return string
+     */
+    public function renderBuiltIn($template, $variables = [])
+    {
+        return $this->twig->render("@built-in/{$this->getBuiltInFileName($template)}", $variables);
+    }
+
+    /**
+     * @param $template
+     * @param array $variables
+     * @return string
+     */
+    public function renderByPath($template, $variables = [])
+    {
+        return $this->twig->render($template, $variables);
+    }
+
+    /**
+     * @param $template
+     * @param array $variables
+     * @return string
+     */
+    public function renderCascade($template, $variables = [])
+    {
+        $content = $this->renderBuiltIn($template, $variables);
+
+        foreach (array_reverse($this->namespaces) as $namespace) {
+            if ($this->loader->exists("@$namespace/$template")) {
+                $content .= $this->twig->render("@$namespace/$template", $variables) . "\n";
+            }
+        }
+
+        return $content;
+    }
+
+    /**
+     * @param $template
+     * @param array $variables
+     * @return string
+     */
+    public function renderFirst($template, $variables = [])
+    {
+        foreach ($this->namespaces as $namespace) {
+            if ($this->loader->exists("@$namespace/$template")) {
+                return $this->twig->render("@$namespace/$template", $variables);
+            }
+        }
+
+        return $this->renderBuiltIn($template, $variables);
     }
 
     /**
@@ -93,9 +169,24 @@ class TemplateManager
      */
     public function themeHasFile($template)
     {
-        return $this->loader->exists($template);
+        foreach ($this->namespaces as $namespace) {
+            if ($this->loader->exists("@$namespace/$template")) {
+                return true;
+            }
+        }
+
+        return $this->loader->exists("@built-in/{$this->getBuiltInFileName($template)}");
     }
 
+
+    /**
+     * @param $template
+     * @return string
+     */
+    protected function getBuiltInFileName($template)
+    {
+        return 'cli-press/' . array_slice(explode('/', $template), -1)[0];
+    }
     /**
      *
      */
@@ -110,6 +201,6 @@ class TemplateManager
             return;
         }
 
-        $this->loader->addPath(app()->path('press-root', $documentConfig['document-themes']));
+        $this->loader->addPath(app()->path('press-root', $documentConfig['document-themes']), 'document');
     }
 }

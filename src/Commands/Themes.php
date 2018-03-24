@@ -34,6 +34,17 @@ class Themes extends BaseCommand
     protected function exec()
     {
         $list = "Available Themes\n";
+
+        foreach (['personal', 'system'] as $collection) {
+            if ($dir = app()->config()->get("themes.$collection")) {
+                $list .= "<info>$collection:</info>\n";
+                foreach (glob($dir . '/*', GLOB_ONLYDIR) as $theme) {
+                    $list .= '<comment>' . basename($theme) . "</comment>\n";
+                }
+                $list .= "\n";
+            }
+        }
+
         $list .= "<info>built-in:</info>\n";
 
         foreach (glob(app()->path('themes.built-in', '*'), GLOB_ONLYDIR) as $theme) {
@@ -41,16 +52,7 @@ class Themes extends BaseCommand
             if ($theme == 'cli-press') {
                 $theme = 'cli-press (base)';
             }
-            $list .= "<comment>$theme</comment>\n";
-        }
-
-        foreach (['personal', 'system'] as $collection) {
-            if ($dir = app()->config()->get("themes.$collection")) {
-                $list .= "\n<info>personal:</info>\n";
-                foreach (glob($dir . '/*', GLOB_ONLYDIR) as $theme) {
-                    $list .= '<comment>' . basename($theme) . '</comment>';
-                }
-            }
+            $list .= "<comment>$theme</comment>";
         }
 
         $this->console->writeln($list);

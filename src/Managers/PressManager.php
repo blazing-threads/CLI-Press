@@ -260,12 +260,11 @@ class PressManager
             unset($chapter);
         }
 
-        $__commonCss = $this->themeManager->getThemeFile('common.css.twig', [], true);
-        $__baseCss = $this->themeManager->getThemeFile('toc.css.twig', [], true);
-        $__themeCss = $this->themeManager->getThemeFile('toc.css.twig');
-        $__allCss = $this->themeManager->getThemeFile('all.css.twig');
+        $__commonCss = $this->themeManager->getCascadedThemeFiles('common.css.twig');
+        $__baseCss = $this->themeManager->getCascadedThemeFiles('toc.css.twig');
+        $__themeCss = $this->themeManager->getCascadedThemeFiles('toc.css.twig');
         $xsl = new \DOMDocument();
-        $xsl->loadXML($this->themeManager->getFirstFile('toc.xsl.twig', compact('__commonCss', '__baseCss', '__themeCss', '__allCss')));
+        $xsl->loadXML($this->themeManager->getFirstFile('toc.xsl.twig', compact('__commonCss', '__baseCss', '__themeCss')));
 
         $processor = new \XSLTProcessor();
         $processor->importStylesheet($xsl);
@@ -385,10 +384,9 @@ class PressManager
      * @return string
      */
     protected function generateBodyHtml($files) {
-        $__commonCss = $this->themeManager->getThemeFile('common.css.twig', [], true);
-        $__baseCss = $this->themeManager->getThemeFile('body.css.twig', [], true);
-        $__themeCss = $this->themeManager->getThemeFile('body.css.twig');
-        $__allCss = $this->themeManager->getThemeFile('all.css.twig');
+        $__commonCss = $this->themeManager->getCascadedThemeFiles('common.css.twig');
+        $__baseCss = $this->themeManager->getCascadedThemeFiles('body.css.twig');
+        $__themeCss = $this->themeManager->getCascadedThemeFiles('body.css.twig');
         $__commonJs = $this->themeManager->getFirstFile('common.js');
         $__html = '';
         while ($file = array_shift($files)) {
@@ -409,7 +407,7 @@ class PressManager
             $__html .= $this->templateManager->renderString(file_get_contents($file), $this->instructions->pressVariables);
         }
         $__html = $this->pressdown->parse($__html);
-        return $this->themeManager->getFirstFile('body-layout.html.twig', compact('__commonCss', '__baseCss', '__themeCss', '__allCss', '__commonJs', '__html'));
+        return $this->themeManager->getFirstFile('body-layout.html.twig', compact('__commonCss', '__baseCss', '__themeCss', '__commonJs', '__html'));
     }
 
     /**
@@ -419,13 +417,13 @@ class PressManager
      */
     protected function generateHtml($type, $variables = [])
     {
-        $__commonCss = $this->themeManager->getThemeFile('common.css.twig', [], true);
-        $__baseCss = $this->themeManager->getThemeFile($type . '.css.twig', [], true);
-        $__themeCss = $this->themeManager->getThemeFile($type . '.css.twig');
-        $__allCss = $this->themeManager->getThemeFile('all.css.twig');
+        $this->console->veryVerbose("generating html for $type");
+        $__commonCss = $this->themeManager->getCascadedThemeFiles('common.css.twig');
+        $__baseCss = $this->themeManager->getCascadedThemeFiles($type . '.css.twig');
+        $__themeCss = $this->themeManager->getCascadedThemeFiles($type . '.css.twig');
         $__commonJs = $this->themeManager->getFirstFile('common.js');
         $__content = $this->pressdown->parse($this->themeManager->getFirstFile($type . '.html.twig', $variables));
-        return $this->themeManager->getFirstFile($type . '-layout.html.twig', compact('__commonCss', '__baseCss', '__themeCss', '__allCss', '__commonJs', '__content'));
+        return $this->themeManager->getFirstFile($type . '-layout.html.twig', compact('__commonCss', '__baseCss', '__themeCss', '__commonJs', '__content'));
     }
 
     /**

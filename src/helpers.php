@@ -9,6 +9,10 @@ function app()
     return Application::getInstance();
 }
 
+/**
+ * @param $string
+ * @return mixed|string
+ */
 function camelCase($string)
 {
     static $cache = [];
@@ -21,6 +25,20 @@ function camelCase($string)
     return $cache[$string] = lcfirst(str_replace(' ', '', $result));
 }
 
+/**
+ * @param $json
+ * @return array|mixed
+ */
+function jsonOrEmptyArray($json)
+{
+    $json = json_decode($json, true);
+    return json_last_error() === JSON_ERROR_NONE ? $json : [];
+}
+
+/**
+ * @param $string
+ * @return mixed|string
+ */
 function kebabCase($string)
 {
     static $cache = [];

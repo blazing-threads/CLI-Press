@@ -49,8 +49,38 @@ class ThemeManager
     }
 
     /**
+     * @param $file
+     * @return array|string
+     */
+    public function getAllThemeFilePaths($file)
+    {
+        return $this->templateManager->getAllExistingPaths($file);
+    }
+
+    /**
+     * @param $file
+     * @param $variables
+     * @return string
+     */
+    public function getCascadedThemeFiles($file, $variables = [])
+    {
+        $themeFile = empty($this->theme) ? false : $this->getThemePath($file, $this->theme);
+        return $this->templateManager->renderCascade($themeFile, array_merge($variables, $this->templateVariables));
+    }
+
+    /**
+     * @param $path
+     * @param array $variables
+     * @return string
+     */
+    public function getFileByPath($path, $variables = [])
+    {
+        return $this->templateManager->renderByPath($path, array_merge($variables, $this->templateVariables));
+    }
+
+    /**
      * Find the first theme file defined for the given file.
-     * If no theme defines the file, use the base theme.
+     *
      * @param $file
      * @param array $variables
      * @return string
@@ -58,7 +88,7 @@ class ThemeManager
     public function getFirstFile($file, $variables = [])
     {
         $themeFile = empty($this->theme) ? false : $this->getThemePath($file, $this->theme);
-        return $this->getThemeFile($file, $variables, $themeFile === false || !$this->templateManager->themeHasFile($themeFile));
+        return $this->templateManager->renderFirst($themeFile, array_merge($variables, $this->templateVariables));
     }
 
     /**
@@ -77,9 +107,9 @@ class ThemeManager
         $settings = [];
 
         if ($this->templateManager->themeHasFile($this->getThemePath($presetFile, $theme))) {
-            $settings = $this->jsonOrEmptyArray($this->getThemeFile($presetFile, [], false, $theme));
+            $settings = jsonOrEmptyArray($this->getThemeFile($presetFile, [], false, $theme));
         } elseif ($this->templateManager->themeHasFile($presetFile)) {
-            $settings = $this->jsonOrEmptyArray($this->templateManager->render($presetFile));
+            $settings = jsonOrEmptyArray($this->templateManager->render($presetFile));
         }
 
         $this->presetCache[$theme][$preset] = $settings;
@@ -101,7 +131,7 @@ class ThemeManager
 
         $defaults = [];
         if ($this->templateManager->themeHasFile($defaultsPath)) {
-            $defaults = $this->jsonOrEmptyArray($this->getThemeFile('cli-press.json', [], false, $theme));
+            $defaults = jsonOrEmptyArray($this->getFirstFile('cli-press.json'));
         }
 
         $this->themeDefaultsCache[$theme] = $defaults;
@@ -146,15 +176,5 @@ class ThemeManager
     {
         $this->theme = $theme;
         $this->templateVariables = $templateVariables;
-    }
-
-    /**
-     * @param $json
-     * @return array|mixed
-     */
-    protected function jsonOrEmptyArray($json)
-    {
-        $json = json_decode($json, true);
-        return json_last_error() === JSON_ERROR_NONE ? $json : [];
     }
 }

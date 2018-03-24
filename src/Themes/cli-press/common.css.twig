@@ -1,6 +1,6 @@
 @import url('file://{{ __assetPath }}/css/bootstrap.css');
 
-{{ include('cli-press/font-awesome.css.twig') }}
+{{ include('@built-in/cli-press/font-awesome.css.twig') }}
 
 @font-face {
     font-family: 'Shrikhand';
@@ -9,11 +9,11 @@
     src: url('file://{{ __assetPath }}/fonts/Shrikhand.ttf') format('truetype');
 }
 
-{{ include('cli-press/css/pressdown-syntax-highlighter.css.twig') }}
+{{ include('@built-in/cli-press/css/pressdown-syntax-highlighter.css.twig') }}
 
-{{ include('cli-press/css/pressdown-alert.css.twig') }}
+{{ include('@built-in/cli-press/css/pressdown-alert.css.twig') }}
 
-{{ include('cli-press/css/pull-quote.css.twig') }}
+{{ include('@built-in/cli-press/css/pull-quote.css.twig') }}
 
 .no-wrap,
 .no-word-wrap {
