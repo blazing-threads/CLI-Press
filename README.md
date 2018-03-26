@@ -54,13 +54,15 @@ If there is a *cover.md* file in a directory, `cli-press` will use it's contents
 
 # Assets
 
-You can include assets like images, fonts, etc. in your theme's CSS and layout files by using `file://` links to them.  Use the press instruction `custom-assets` to set the path to a directory in your project where the assets are located.  Then, in your theme files, use the Twig expression to specify the full path to the asset like this:
+You can include assets like images, fonts, etc. in your theme's CSS, html, and layout files by using `file://` links to them.  Use the press instruction `custom-assets` to set the path to a directory in your project where the assets are located.  Then, in your theme files, use a Twig expression to resolve the asset like this:
 
 ```
 img.castle {
-    content: url(file://{{ __customAssetPath }}/images/castle.png);
+    content: url({{ customAsset('/images/castle.png') }});
 }
 ```
+
+The asset files from personal and system themes can be overridden by using the same filenames (and path structure).  *CLI Press* will look for a particular asset in all defined custom asset paths and use the first one that it finds. 
 
 # The Nitty Gritty
 

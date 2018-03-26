@@ -15,7 +15,10 @@
 
 namespace BlazingThreads\CliPress\Managers;
 
+use BlazingThreads\CliPress\PressTools\PressInstructionStack;
+use BlazingThreads\CliPress\PressTools\PressTemplateLoader;
 use Twig_Environment;
+use Twig_Function;
 use Twig_Loader_Array;
 use Twig_Loader_Filesystem;
 
@@ -48,7 +51,7 @@ class TemplateManager
 
     public function __construct()
     {
-        $this->loader = new Twig_Loader_Filesystem();
+        $this->loader = new PressTemplateLoader();
         // register themes in the order of priority: document, personal, system, built-in
         $this->loadDocumentThemes();
         foreach (['personal', 'system'] as $key) {
@@ -58,10 +61,14 @@ class TemplateManager
         }
         $this->loader->addPath(app()->path('themes.built-in'), 'built-in');
 
+        $function = new \Twig_SimpleFunction('customAsset', [PressInstructionStack::class, 'customAsset']);
+
         $this->twig = new Twig_Environment($this->loader, [
             'cache' => false,
             'autoescape' => false,
         ]);
+
+        $this->twig->addFunction($function);
 
         $this->stringLoader = new Twig_Loader_Array(['string' => '']);
 
@@ -69,6 +76,8 @@ class TemplateManager
             'cache' => false,
             'autoescape' => false,
         ]);
+
+        $this->stringTwig->addFunction($function);
     }
 
     /**
@@ -86,6 +95,15 @@ class TemplateManager
         }
 
         return $paths;
+    }
+
+    /**
+     * @param $template
+     * @return bool|string
+     */
+    public function getFilePath($template)
+    {
+        return $this->loader->findTemplate($template);
     }
 
     /**

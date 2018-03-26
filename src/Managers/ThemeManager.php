@@ -73,9 +73,18 @@ class ThemeManager
      * @param array $variables
      * @return string
      */
-    public function getFileByPath($path, $variables = [])
+    public function getFileByNamespacedPath($path, $variables = [])
     {
         return $this->templateManager->renderByPath($path, array_merge($variables, $this->templateVariables));
+    }
+
+    /**
+     * @param $file
+     * @return bool|string
+     */
+    public function getFilePath($file)
+    {
+        return $this->templateManager->getFilePath($file);
     }
 
     /**

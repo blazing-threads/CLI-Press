@@ -1,5 +1,6 @@
 <?php
 use BlazingThreads\CliPress\Application;
+use BlazingThreads\CliPress\PressTools\PressInstructionStack;
 
 /**
  * @return Application

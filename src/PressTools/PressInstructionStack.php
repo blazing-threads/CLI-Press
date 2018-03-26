@@ -83,6 +83,10 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  */
 class PressInstructionStack
 {
+    protected $customAssetPaths = [];
+
+    protected $customAssetPathsPopCount = 0;
+
     protected $instructions;
 
     protected $pressDirectory;
@@ -112,6 +116,24 @@ class PressInstructionStack
     protected $validSettings;
 
     /**
+     * @param $path
+     * @return string
+     */
+    public static function customAsset($path)
+    {
+        foreach(app()->make(PressInstructionStack::class)->getCustomAssetPaths() as $assetPath) {
+            if (is_file($file = $assetPath . DIRECTORY_SEPARATOR . $path)) {
+                return 'file://' . $file;
+            }
+        }
+
+        var_dump(app()->make(PressInstructionStack::class)->getCustomAssetPaths());
+        app()->make(PressConsole::class)->writeLn("<warn>Could not find custom asset for path $path.</warn>");
+
+        return '';
+    }
+
+    /**
      * PressInstructionStack constructor.
      * @param ThemeManager $themeManager
      */
@@ -130,6 +152,14 @@ class PressInstructionStack
         $this->instructions = $this->merge($instructions, []);
 
         $this->themeManager->setThemeAndTemplateVariables($this->instructions['theme'], $this->getTemplateVariables());
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomAssetPaths()
+    {
+        return array_reverse(array_unique($this->customAssetPaths));
     }
 
     /**
@@ -165,10 +195,6 @@ class PressInstructionStack
             $variables[camelCase($variable)] = $this->instructions[$variable];
         }
 
-        if (!empty($this->instructions['custom-assets']) && is_dir($this->pressDirectory . DIRECTORY_SEPARATOR . $this->instructions['custom-assets'])) {
-            $this->instructions['press-variables']['__customAssetPath'] = $this->pressDirectory . DIRECTORY_SEPARATOR . $this->instructions['custom-assets'];
-        }
-
         return array_merge($variables, $this->instructions['press-variables'], ['__assetPath' => app()->path('assets')]);
     }
 
@@ -177,6 +203,7 @@ class PressInstructionStack
      */
     public function pop()
     {
+        array_slice($this->customAssetPaths, -1 * $this->instructions['custom-assets-stack-size']);
         $this->instructions = array_pop($this->stack);
         $this->themeManager->setThemeAndTemplateVariables($this->instructions['theme'], $this->getTemplateVariables());
     }
@@ -190,9 +217,33 @@ class PressInstructionStack
         $this->stack[] = $this->instructions;
         $this->pressDirectory = $pressDirectory;
 
+        $this->instructions['custom-assets-stack-size'] = 0;
+
+        if (key_exists('custom-assets', $instructions)) {
+            if (is_dir($dir = $pressDirectory . DIRECTORY_SEPARATOR . $instructions['custom-assets'])) {
+                $this->customAssetPaths[] = $dir;
+                $this->instructions['custom-assets-stack-size']++;
+            } else {
+                app()->make(PressConsole::class)->writeLn("<warn>Custom Asset path $dir does not exist1.</warn>");
+            }
+        }
+
         $theme = key_exists('theme', $instructions) ? $instructions['theme'] : $this->instructions['theme'];
+
         foreach ($this->themeManager->getAllThemeFilePaths("$theme/cli-press.json") as $overlay) {
-            $this->instructions = $this->merge($this->instructions, jsonOrEmptyArray($this->themeManager->getFileByPath($overlay)));
+            $overlayInstructions = jsonOrEmptyArray($this->themeManager->getFileByNamespacedPath($overlay));
+
+            if (key_exists('custom-assets', $overlayInstructions)) {
+                if (is_dir($dir = dirname($this->themeManager->getFilePath($overlay)) . DIRECTORY_SEPARATOR . $overlayInstructions['custom-assets'])) {
+                    $overlayInstructions['custom-assets'] = $dir;
+                    $this->customAssetPaths[] = $dir;
+                    $this->instructions['custom-assets-stack-size']++;
+                } else {
+                    app()->make(PressConsole::class)->writeLn("<warn>Custom Asset path $dir does not exist2.</warn>");
+                }
+            }
+
+            $this->instructions = $this->merge($this->instructions, $overlayInstructions);
         }
 
         $this->instructions = $this->merge($this->instructions, $this->cleanInstructions($instructions));
@@ -317,13 +368,23 @@ class PressInstructionStack
 
         unset($base['press-variables'], $basePreset['press-variables'], $overlay['press-variables'], $overlayPreset['press-variables']);
 
-        if (!key_exists('chapter-title', $overlay) && !key_exists('chapter-title', $overlayPreset)
-            && !key_exists('chapter-title', $basePreset)
-        ) {
+        if (!key_exists('chapter-title', $overlay) && !key_exists('chapter-title', $overlayPreset) && !key_exists('chapter-title', $basePreset) && !key_exists('chapter-title', $base)) {
             $overlay['chapter-title'] = basename($this->pressDirectory);
         }
 
-        return array_merge($result, $basePreset, $base, $overlayPreset, $overlay);
+        $result = array_merge($result, $basePreset, $base, $overlayPreset, $overlay);
+
+        foreach([
+            'logo-all', 'logo-footer', 'logo-header',
+            'logo-chapter-cover', 'logo-chapter-cover-footer', 'logo-chapter-cover-header',
+            'logo-root-cover', 'logo-root-cover-footer', 'logo-root-cover-header',
+        ] as $logo) {
+            if (!empty($result[$logo]) && is_array($result[$logo]) && !empty($result[$logo]['asset'])) {
+                $result[$logo] = self::customAsset($result[$logo]['asset']);
+            }
+        }
+
+        return $result;
     }
 
     /**
