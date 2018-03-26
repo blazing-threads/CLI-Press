@@ -48,6 +48,6 @@ class Alert extends BaseDirective
     protected function process($matches)
     {
         $content = $this->parseMarkdown($matches[2]);
-        return "<div class=\"pd-alert-box\"><i class=\"fa fa-$matches[3] fa-4x pd-alert-icon\"></i><div class=\"pd-alert\">$content</div><div class=\"clearfix\"></div></div>";
+        return "<div class=\"pd-alert-box\"><div class=\"pd-alert-icon\"><i class=\"fa fa-$matches[3] fa-4x pd-alert-icon\"></i></div><div class=\"pd-alert\">$content</div><div class=\"clearfix\"></div></div>";
     }
 }
