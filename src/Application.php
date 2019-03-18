@@ -15,6 +15,7 @@
 
 namespace BlazingThreads\CliPress;
 
+use BlazingThreads\CliPress\Commands\Batch;
 use BlazingThreads\CliPress\Commands\Configure;
 use BlazingThreads\CliPress\Commands\Generate;
 use BlazingThreads\CliPress\Commands\Themes;
@@ -82,6 +83,7 @@ class Application extends Container
         $this->tag(Configure::class, ['command', 'command.configure']);
         $this->tag(Themes::class, ['command', 'command.themes']);
         $this->tag(Generate::class, ['command', 'command.generate']);
+        $this->tag(Batch::class, ['command', 'command.batch']);
 
         // register the cleanup script
         register_shutdown_function([$this, 'cleanup']);

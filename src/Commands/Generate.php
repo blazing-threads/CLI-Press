@@ -26,14 +26,25 @@ class Generate extends BaseCommand
     protected $pressManager;
 
     /**
+     * @var array
+     */
+    protected $pressOptions;
+
+    /**
      * @inheritdoc
      */
     protected function configure()
     {
+        $this->pressOptions = json_decode(file_get_contents(app()->path('themes.built-in', 'cli-press/cli-press.json')), true);
+
         $this
             ->setName('generate')
             ->addOption('keep-working', null, InputOption::VALUE_NONE, 'Do not remove the working directory when done')
             ->setDescription('Start up the press and make something beautiful');
+
+        foreach (array_keys($this->pressOptions) as $option) {
+            $this->addOption($option, null, InputOption::VALUE_OPTIONAL, 'Must be valid JSON');
+        }
     }
 
     /**
@@ -47,8 +58,41 @@ class Generate extends BaseCommand
 
         $this->pressManager->setKeepWorkingFiles($this->input->getOption('keep-working'));
 
-        $this->pressManager->generate();
+        $cliOptions = [];
+
+        foreach ($this->pressOptions as $option => $default) {
+            if ($this->input->getOption($option) !== $default) {
+                $cliOption = $this->processPressOption($option, $ignore);
+                if (!$ignore) {
+                    $cliOptions[$option] = $cliOption;
+                }
+            }
+        }
+
+        $this->pressManager->generate($cliOptions);
 
         $this->console->verbose('<comment>Stopping the press</comment>');
+    }
+
+    /**
+     * @param $option
+     * @param $ignore
+     * @return mixed
+     */
+    protected function processPressOption($option, &$ignore)
+    {
+        $ignore = true;
+        $value = $this->input->getOption($option);
+
+        if (is_null($value)) {
+            return $value;
+        }
+
+        $decoded = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $ignore = false;
+        }
+
+        return $decoded;
     }
 }

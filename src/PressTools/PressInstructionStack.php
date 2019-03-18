@@ -127,7 +127,6 @@ class PressInstructionStack
             }
         }
 
-        var_dump(app()->make(PressInstructionStack::class)->getCustomAssetPaths());
         app()->make(PressConsole::class)->writeLn("<warn>Could not find custom asset for path $path.</warn>");
 
         return '';
@@ -358,6 +357,20 @@ class PressInstructionStack
         }
 
         unset($base['ignore'], $basePreset['ignore'], $overlay['ignore'], $overlayPreset['ignore']);
+
+        if (key_exists('only', $overlay)) {
+            $result['only'] = $overlay['only'];
+        } elseif (key_exists('only', $overlayPreset)) {
+            $result['only'] = $overlayPreset['only'];
+        } elseif (key_exists('only', $base)) {
+            $result['only'] = $base['only'];
+        } elseif (key_exists('only', $basePreset)) {
+            $result['only'] = $basePreset['only'];
+        } else {
+            $result['only'] = [];
+        }
+
+        unset($base['only'], $basePreset['only'], $overlay['only'], $overlayPreset['only']);
 
         $result['press-variables'] = array_merge(
             key_exists('press-variables', $basePreset) ? $basePreset['press-variables'] : [],

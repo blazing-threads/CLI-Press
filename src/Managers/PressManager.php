@@ -24,6 +24,11 @@ use BlazingThreads\CliPress\PressTools\PressInstructionStack;
 class PressManager
 {
     /**
+     * @var array
+     */
+    protected $cliOptions;
+
+    /**
      * @var PressConsole
      */
     protected $console;
@@ -124,10 +129,13 @@ class PressManager
     }
 
     /**
-     *
+     * @param array $cliOptions
+     * @throws CliPressException
      */
-    public function generate()
+    public function generate(array $cliOptions)
     {
+        $this->cliOptions = $cliOptions;
+
         $this->setWorkingRootPath($this->keepWorkingFiles);
         $this->setWorkingDirectory();
 
@@ -320,6 +328,10 @@ class PressManager
         $this->setIgnored();
 
         $pressFiles = glob('*.{' . implode(',', $this->instructions->extensions) . '}', GLOB_BRACE);
+
+        if (!empty($this->instructions->only)) {
+            $pressFiles = array_intersect($pressFiles, $this->instructions->only);
+        }
 
         if(!empty($pressFiles)) {
 
@@ -588,7 +600,7 @@ class PressManager
         if (file_exists('cli-press.json')) {
             $json = json_decode(file_get_contents('cli-press.json'), true);
             if (json_last_error() === JSON_ERROR_NONE) {
-                $this->instructions->stack($json, $this->pressDirectory);
+                $this->instructions->stack(array_merge($json, $this->cliOptions), $this->pressDirectory);
             }
         }
 

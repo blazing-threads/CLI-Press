@@ -32,4 +32,6 @@ if (empty($argv[1]) || $argv[1] == 'list' || ! ($command = $app->labeled('comman
     $app['command.current'] = strtolower(@(string) $argv[1]);
 }
 
+define('CLI_PRESS', __FILE__);
+
 $commander->run();
