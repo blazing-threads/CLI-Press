@@ -17,6 +17,7 @@
         <script src="file://{{ __assetPath }}/js/jquery.js"></script>
         <script src="file://{{ __assetPath }}/js/bootstrap.js"></script>
         <link rel="stylesheet" href="file://{{ __assetPath }}/css/bootstrap.css">
+        <link rel="stylesheet" href="file://{{ __assetPath }}/css/prettify.css">
         <script>
             {{ __commonJs }}
         </script>
@@ -28,13 +29,14 @@
             {{ __themeCss }}
         </style>
     </head>
-    <body>
+    <body onload="PR.prettyPrint()">
         {{ __html }}
         <script type="text/javascript">
             $(document).find("pre").not('.prettyprint').not('.prettyprintplain').each(function(){
                 $(this).addClass($(this).find("code.language-none").length == 0 ? "prettyprint" : "prettyprintplain");
             });
         </script>
-        <script src="file://{{ __assetPath }}/js/run_prettify.js"></script>
+        <script src="file://{{ __assetPath }}/js/prettify.js"></script>
+        <script src="file://{{ __assetPath }}/js/prettify-langs.js"></script>
     </body>
 </html>
