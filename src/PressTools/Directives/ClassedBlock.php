@@ -84,7 +84,9 @@ class ClassedBlock extends BaseDirective
             $contents = $this->parseMarkdown($contents, in_array('-p', $options) || strpos($contents, "\n") === false);
         }
 
-        return $contents;
+        return !in_array('+w', $options)
+            ? trim($contents)
+            : $contents;
     }
 
     /**
