@@ -43,17 +43,17 @@ class Batch extends BaseCommand
 
         $verbosity = '';
         if ($this->input->hasParameterOption('-v')) {
-            $verbosity = '-v';
+            $verbosity = ' -v';
         } elseif ($this->input->hasParameterOption('-vv')) {
-            $verbosity = '-vv';
+            $verbosity = ' -vv';
         } elseif ($this->input->hasParameterOption('-vvv')) {
-            $verbosity = '-vvv';
+            $verbosity = ' -vvv';
         }
 
         foreach (glob($this->input->getOption('pattern'), GLOB_BRACE) as $book) {
-            $filename = escapeshellarg(json_encode(strstr($book, trim($this->input->getOption('pattern'), '*'), true)));
+            $filename = escapeshellarg(json_encode(strstr(basename($book), '.', true)));
             $only = escapeshellarg(json_encode([$book]));
-            $command = CLI_PRESS . " --ansi generate --filename $filename --only $only --title $filename $verbosity";
+            $command = CLI_PRESS . "$verbosity --ansi generate --filename $filename --only $only --title $filename";
             $this->output->writeln("<comment>running $command</comment>");
             passthru($command);
         }
