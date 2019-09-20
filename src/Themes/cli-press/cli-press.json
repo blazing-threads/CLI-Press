@@ -22,6 +22,7 @@
         "twig"
     ],
     "figure-caption-above": false,
+    "file-directory" : ".",
     "filename": "cli-press-book",
     "font-family-block-quote-code": "Consolas, \"Liberation Mono\", Menlo, Courier, monospace",
     "font-family-body": "\"Roboto Condensed\", \"Tauri\", \"Hiragino Sans GB\", \"Microsoft YaHei\", \"STHeiti\", \"SimSun\", \"Lucida Grande\", \"Lucida Sans Unicode\", \"Lucida Sans\", \"Segoe UI\", AppleSDGothicNeo-Medium, \"Malgun Gothic\", Verdana, Tahoma, sans-serif",

@@ -38,6 +38,7 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $coverType
  * @property $customDirectives
  * @property $extensions
+ * @property $fileDirectory
  * @property $filename
  * @property $figureCaptionAbove
  * @property $fontFamilyBlockQuoteCode

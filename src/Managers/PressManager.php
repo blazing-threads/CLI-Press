@@ -192,10 +192,10 @@ class PressManager
             $this->prependFile($this->getWorkingFilePath('cli-press_cover.pdf'));
         }
 
-        if (!$this->leafManager->merge($this->instructions->filename . '.pdf')) {
-            $this->console->verbose("<error>Could not save to {$this->instructions->filename}.pdf</error>");
+        if (!$this->leafManager->merge($this->instructions->fileDirectory . DIRECTORY_SEPARATOR . $this->instructions->filename . '.pdf')) {
+            $this->console->verbose('<error>Could not save to ' . $this->instructions->fileDirectory . DIRECTORY_SEPARATOR . $this->instructions->filename . '.pdf</error>');
         } else {
-            $this->console->verbose("<comment>Saved to {$this->instructions->filename}.pdf</comment>");
+            $this->console->verbose('<comment>Saved to ' . $this->instructions->fileDirectory . DIRECTORY_SEPARATOR . $this->instructions->filename . '.pdf</comment>');
         }
     }
 
