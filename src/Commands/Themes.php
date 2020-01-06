@@ -15,8 +15,11 @@
 
 namespace BlazingThreads\CliPress\Commands;
 
+use BlazingThreads\CliPress\Commands\Traits\ListsThemes;
+
 class Themes extends BaseCommand
 {
+    use ListsThemes;
 
     /**
      * @inheritdoc
@@ -33,27 +36,7 @@ class Themes extends BaseCommand
      */
     protected function exec()
     {
-        $list = "Available Themes\n";
-
-        foreach (['personal', 'system'] as $collection) {
-            if ($dir = app()->config()->get("themes.$collection")) {
-                $list .= "<info>$collection:</info>\n";
-                foreach (glob($dir . '/*', GLOB_ONLYDIR) as $theme) {
-                    $list .= '<comment>' . basename($theme) . "</comment>\n";
-                }
-                $list .= "\n";
-            }
-        }
-
-        $list .= "<info>built-in:</info>\n";
-
-        foreach (glob(app()->path('themes.built-in', '*'), GLOB_ONLYDIR) as $theme) {
-            $theme = basename($theme);
-            if ($theme == 'cli-press') {
-                $theme = 'cli-press (base)';
-            }
-            $list .= "<comment>$theme</comment>";
-        }
+        $list = $this->getThemeList();
 
         $this->console->writeln($list);
     }

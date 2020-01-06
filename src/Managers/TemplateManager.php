@@ -196,7 +196,6 @@ class TemplateManager
         return $this->loader->exists("@built-in/{$this->getBuiltInFileName($template)}");
     }
 
-
     /**
      * @param $template
      * @return string
@@ -205,6 +204,7 @@ class TemplateManager
     {
         return 'cli-press/' . array_slice(explode('/', $template), -1)[0];
     }
+
     /**
      *
      */
