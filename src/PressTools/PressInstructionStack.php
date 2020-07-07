@@ -37,6 +37,7 @@ use BlazingThreads\CliPress\Managers\ThemeManager;
  * @property $chapterTitle
  * @property $coverType
  * @property $customDirectives
+ * @property $enableLocalFileAccess
  * @property $extensions
  * @property $fileDirectory
  * @property $filename

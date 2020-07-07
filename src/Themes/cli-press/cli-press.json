@@ -15,6 +15,7 @@
     "cover-type": "default",
     "custom-assets" : null,
     "custom-directives": {},
+    "enable-local-file-access": true,
     "extensions": [
         "html",
         "md",
