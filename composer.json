@@ -20,7 +20,7 @@
         "erusev/parsedown-extra": "^0.7.1",
         "symfony/console": "^3.2",
         "mikehaertl/phpwkhtmltopdf": "^2.2",
-        "twig/twig": "^1.33",
+        "twig/twig": "^3.3",
         "illuminate/container": "^5.4",
         "blazing-threads/pdf-curator": "dev-master"
     },
